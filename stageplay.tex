@@ -1,0 +1,90 @@
+\startenvironment stageplay
+
+\mainlanguage[en]
+
+\setuplayout[%
+  backspace=1in,
+  width=middle,
+  topspace=1in,
+  height=middle]
+
+\setupbodyfont[tt, 12pt]
+\setuppagenumbering[location={header,right}]
+
+\setuplabeltext[%
+  chapter={Act~},
+  section={Scene~},
+  continued={Cont'd},
+  more={More}]
+
+\definehead[act][chapter]
+\setuphead[act][%
+  page=no,
+  style={\tf\sc},
+  before={\blank\startnarrow[left=2.5in][left]}
+  after={\stopnarrow\blank}]
+
+\definehead[scene][section]
+\setuphead[scene][%
+  page=no,
+  style={\tf\sc},
+  numbercommand={%
+    \labeltext{section}
+    \determineheadnumber[chapter]
+    \currentheadnumber-
+    \determineheadnumber[section]
+    \currentheadnumber
+    \gobbleoneargument
+  },
+  before={\blank\startnarrow[left=2.5in][left]}
+  after={\stopnarrow\blank}]
+
+\setuphead[subject][%
+  page=no,
+  style={\tf},
+  textstyle=cap,
+  before={\blank\startnarrow[left=2.5in][left]},
+  after={\stopnarrow}]
+
+\definemode[dialogblock][no]
+
+\definestartstop[open][%
+  before={\startnotmode[dialogblock]\startnarrow[left=2.5in][left](},
+  after={)\stopnarrow\par\stopnotmode}]
+
+\define[1]\open{\startopen#1\stopopen}
+
+\definestartstop[stage][%
+  before={\startnarrow[left=2in][left](},
+  after={)\stopnarrow\par\startnotmode[dialogblock]\blank\stopnotmode}]
+
+\define[1]\stage{\startstage#1\stopstage}
+
+\define[1]\startdialog{%
+  \getparameters[xx][#1]
+  \doifnotempty{xxsubject}{%
+    \textpage[2]
+    \subject{%
+      \xxsubject
+      \doifnotempty{xxcontinued}{\doif{\xxcontinued}{yes}{~(\labeltext{continued})}}
+    }
+  }
+  \enablemode[dialogblock]
+  \startframed[frame=off,offset=none,before={}]
+}
+
+\define[0]\stopdialog{%
+  \stopframed
+  \disablemode[dialogblock]
+}
+
+\define[2]\dialog{\startdialog[subject={#1}]#2\stopdialog}
+
+\define[2]\addcharacter{%
+  \expandafter\def\csname#1name\endcsname{#2}
+  \expandafter\def\csname#1\endcsname{\uppercase{#2}}
+  \expandafter\def\csname start#1\endcsname{\startdialog[subject={#2}]}
+  \expandafter\def\csname stop#1\endcsname{\stopdialog}
+}
+
+\stopenvironment
