@@ -2,89 +2,242 @@
 
 \mainlanguage[en]
 
-\setuplayout[%
-  backspace=1in,
-  width=middle,
-  topspace=1in,
-  height=middle]
-
 \setupbodyfont[tt, 12pt]
+\setuppapersize[letter][letter]
+\setupalign[nothyphenated, flushleft]
 \setuppagenumbering[location={header,right}]
+\setuppagenumber[state=stop]
+\setupsectionblock[bodypart][page=yes,before={\setuppagenumber[state=start]}]
+\setupblank[big]
+\setuptolerance[horizontal,strict]
 
-\setuplabeltext[%
-  chapter={Act~},
-  section={Scene~},
-  continued={Cont'd},
-  more={More}]
+\setuplayout[
+	backspace=1.5in,
+	width=6in,
+	topspace=1in,
+	header=3em,
+	height=9.5in,
+	footer=0in
+]
+
+\setuplabeltext[
+	chapter={Act~},
+	section={Scene~},
+	continued={Cont'd},
+	more={More},
+	cast={Cast of Characters},
+	theend={The End}
+]
+
+\setuphead[title][
+	page=yes,
+	style={\tf\sc},
+	align=middle,
+	after={\blank}
+]
+
+\definemode[final][keep]
+\definemode[dialogblock][no]
+\definemode[simultaneousblock][no]
+
+\unprotect
+
+\definehead[author][subsubject]
+
+\setuphead[author][
+	page=no,
+	style={\tf},
+	align=middle,
+	before={},
+	after={\blank}
+]
 
 \definehead[act][chapter]
-\setuphead[act][%
-  page=no,
-  style={\tf\sc},
-  before={\blank\startnarrow[left=2.5in][left]}
-  after={\stopnarrow\blank}]
+
+\setuphead[act][
+	page=no,
+	style={\tf\sc},
+	before={\blank\testpage[3]\hskip 2.5in},
+	after={\blank}
+]
+
+\define[1]\@thescenenumber{%
+	\labeltext{section}%
+	\determineheadnumber[chapter]%
+	\currentheadnumber-%
+	\determineheadnumber[section]%
+	\currentheadnumber
+}
 
 \definehead[scene][section]
-\setuphead[scene][%
-  page=no,
-  style={\tf\sc},
-  numbercommand={%
-    \labeltext{section}
-    \determineheadnumber[chapter]
-    \currentheadnumber-
-    \determineheadnumber[section]
-    \currentheadnumber
-    \gobbleoneargument
-  },
-  before={\blank\startnarrow[left=2.5in][left]}
-  after={\stopnarrow\blank}]
 
-\setuphead[subject][%
-  page=no,
-  style={\tf},
-  textstyle=cap,
-  before={\blank\startnarrow[left=2.5in][left]},
-  after={\stopnarrow}]
+\setuphead[scene][
+	page=no,
+	style={\tf\sc},
+	numbercommand={\@thescenenumber},
+	before={\blank\testpage[3]\hskip 2.5in},
+	after={\blank}
+]
 
-\definemode[dialogblock][no]
+\setuphead[subject][
+	page=no,
+	style={\tf},
+	textstyle=cap,
+	before={\doifmodeelse{simultaneousblock}{\hskip 1.5in}{\hskip 2.5in}},
+	after={}
+]
 
-\definestartstop[open][%
-  before={\startnotmode[dialogblock]\startnarrow[left=2.5in][left](},
-  after={)\stopnarrow\par\stopnotmode}]
+\definehead[theend][subsubject]
+
+\setuphead[theend][
+	page=no,
+	style={\tf\sc},
+	textcommand={\labeltext{theend}},
+	before={\blank\hskip 2.5in},
+	after={}
+]
+
+\setupcombinedlist[content][list={act,scene}, alternative=c,]
+
+\setupinteraction[state=start, color=middleblue]
+\placebookmarks[act,scene]
+
+\defineparagraphs[casting][n=2, before={}, after={\blank}]
+\setupparagraphs[casting][1][width={0.25\textwidth}]
+\setupparagraphs[casting][2][width={0.75\textwidth}]
+
+\defineparagraphs[simultaneous][
+	n=2,
+	distance={1em},
+	inner={\enablemode[simultaneousblock]},
+	after={\blank}
+]
+
+\setupparagraphs[simultaneous][1][width={\glueexpr 0.5\textwidth - 0.5em\relax}]
+\setupparagraphs[simultaneous][2][width={\glueexpr 0.5\textwidth - 0.5em\relax}]
+
+\define[0]\maketitlepage{
+	\title{\getvariable{titlepage}{title}}
+	\author{\getvariable{titlepage}{author}}
+}
+
+\define[0]\makecastpage{
+	\title{\labeltext{cast}}
+}
+
+\definestartstop[castpage][
+	before={\title{\labeltext{cast}}\blank[3*line]}
+]
+
+\define[2]\cast{\startcasting#1\casting#2\stopcasting}
+
+\definestartstop[block][
+	before={\let\@blockpar\par\let\par\relax},
+	after={\let\par\@blockpar}
+]
+
+\define[0]\@beforeopen{%
+	\startnotmode[dialogblock]
+	\startframedtext[
+		frame=off,
+		offset=none,
+		loffset=2.5in,
+		width=broad,
+		align=flushleft,
+		before={},
+		after={}
+	]
+	\startblock
+}
+
+\define[0]\@afteropen{%
+	\stopblock
+	\stopframedtext
+	\stopnotmode
+	\blank
+}
+
+\definestartstop[open][before={\@beforeopen(}, after={\unskip)\@afteropen}]
 
 \define[1]\open{\startopen#1\stopopen}
 
-\definestartstop[stage][%
-  before={\startnarrow[left=2in][left](},
-  after={)\stopnarrow\par\startnotmode[dialogblock]\blank\stopnotmode}]
+\define[0]\@beforeframedstage{%
+	\startframedtext[
+		frame=off,
+		offset=none,
+		loffset=2in,
+		width=broad,
+		align=flushleft,
+		before={},
+		after={}
+	]
+}
+
+\define[0]\@beforedialogstage{%
+	\startnarrow[left={\doifmodeelse{simultaneousblock}{1in}{2in}}][left]
+}
+
+\define[0]\@beforestage{%
+	\doifmodeelse{dialogblock}{\@beforedialogstage}{\@beforeframedstage}
+	\startblock
+}
+
+\define[0]\@afterstage{%
+	\stopblock
+	\doifmodeelse{dialogblock}{\stopnarrow}{\stopframedtext\blank}
+}
+
+\definestartstop[stage][before={\@beforestage(}, after={\unskip)\@afterstage}]
 
 \define[1]\stage{\startstage#1\stopstage}
 
-\define[1]\startdialog{%
-  \getparameters[xx][#1]
-  \doifnotempty{xxsubject}{%
-    \textpage[2]
-    \subject{%
-      \xxsubject
-      \doifnotempty{xxcontinued}{\doif{\xxcontinued}{yes}{~(\labeltext{continued})}}
-    }
-  }
-  \enablemode[dialogblock]
-  \startframed[frame=off,offset=none,before={}]
+\def\startdialog#1[#2]{%
+	\getparameters[xx][#2]
+	\doifdefined{xxsubject}{%
+		\testpage[2]
+		\subject{
+			\xxsubject
+			\doifdefined{xxcontinued}{\doif{\xxcontinued}{yes}{~(\labeltext{continued})}}
+		}
+	}
+	\startframedtext[
+		frame=off,
+		offset=none,
+		width=broad,
+		align=flushleft,
+		inner={\enablemode[dialogblock]},
+		before={},
+		after={\blank}
+	]
 }
 
-\define[0]\stopdialog{%
-  \stopframed
-  \disablemode[dialogblock]
-}
+\define[0]\stopdialog{\stopframedtext}
 
 \define[2]\dialog{\startdialog[subject={#1}]#2\stopdialog}
 
+\def\@docharacter#1#2{\doiftextelse{#2}{\dialog{#1}{#2}}{\uppercase{#1}}}
+
 \define[2]\addcharacter{%
-  \expandafter\def\csname#1name\endcsname{#2}
-  \expandafter\def\csname#1\endcsname{\uppercase{#2}}
-  \expandafter\def\csname start#1\endcsname{\startdialog[subject={#2}]}
-  \expandafter\def\csname stop#1\endcsname{\stopdialog}
+	\expandafter\def\csname#1name\endcsname{#2}
+	\expandafter\def\csname#1\endcsname{\@docharacter{#2}}
+	\expandafter\def\csname start#1\endcsname{\startdialog[subject={#2}]}
+	\expandafter\def\csname stop#1\endcsname{\stopdialog}
 }
+
+\define[0]\@beforedraft{%
+	\startnotmode[final]
+	\startcolor[middlered]
+}
+
+\define[0]\@afterdraft{%
+	\stopcolor
+	\stopnotmode
+}
+
+\definestartstop[draft][before={\@beforedraft}, after={\@afterdraft}]
+
+\define[1]\draft{\doifmodeelse{final}{\ignorespaces}{\color[middlered]{#1}}}
+
+\protect
 
 \stopenvironment
