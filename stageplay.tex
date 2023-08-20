@@ -5,11 +5,11 @@
 \setupbodyfont[tt, 12pt]
 \setuppapersize[letter][letter]
 \setupalign[nothyphenated, flushleft]
-\setuppagenumbering[location={header,right}]
+\setuppagenumbering[location={header,right}, right={.}]
 \setuppagenumber[state=stop]
-\setupsectionblock[bodypart][page=yes,before={\setuppagenumber[state=start]}]
+\setupsectionblock[bodypart][page=yes, before={\setuppagenumber[state=start]}]
 \setupblank[big]
-\setuptolerance[horizontal,strict]
+\setuptolerance[horizontal, strict]
 
 \setuplayout[
 	backspace=1.5in,
