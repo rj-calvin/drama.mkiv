@@ -5,7 +5,7 @@
 \setupbodyfont[tt, 12pt]
 \setuppapersize[letter][letter]
 \setupalign[nothyphenated, flushleft]
-\setuppagenumbering[location={header,right}, right={.}]
+\setuppagenumbering[location={header, right}, right={.}]
 \setuppagenumber[state=stop]
 \setupsectionblock[bodypart][page=yes, before={\setuppagenumber[state=start]}]
 \setupblank[big]
@@ -14,9 +14,9 @@
 \setuplayout[
 	backspace=1.5in,
 	width=6in,
-	topspace=1in,
-	header=3em,
-	height=9.5in,
+	topspace=0.5in,
+	header=0.5in,
+	height=10in,
 	footer=0in
 ]
 
@@ -29,6 +29,12 @@
 	theend={The End}
 ]
 
+\definemode[final][keep]
+\definemode[dialogblock][no]
+\definemode[simultaneousblock][no]
+
+\unprotect
+
 \setuphead[title][
 	page=yes,
 	style={\tf\sc},
@@ -36,11 +42,13 @@
 	after={\blank}
 ]
 
-\definemode[final][keep]
-\definemode[dialogblock][no]
-\definemode[simultaneousblock][no]
+\definehead[covertitle][title]
 
-\unprotect
+\setuphead[covertitle][page=no, textstyle=cap, style={\tf\bf}, before={}, after={}]
+
+\definehead[coversubtitle][title]
+
+\setuphead[coversubtitle][page=no, before={}, after={}]
 
 \definehead[author][subsubject]
 
@@ -52,10 +60,18 @@
 	after={\blank}
 ]
 
+\setuphead[subject][
+	page=no,
+	style={\tf\sc},
+	align=middle,
+	after={\blank}
+]
+
 \definehead[act][chapter]
 
 \setuphead[act][
 	page=no,
+	conversion=I,
 	style={\tf\sc},
 	before={\blank\testpage[3]\hskip 2.5in},
 	after={\blank}
@@ -64,7 +80,8 @@
 \define[1]\@thescenenumber{%
 	\labeltext{section}%
 	\determineheadnumber[chapter]%
-	\currentheadnumber-%
+	\convertnumber{I}{\currentheadnumber}%
+	-%
 	\determineheadnumber[section]%
 	\currentheadnumber
 }
@@ -79,10 +96,13 @@
 	after={\blank}
 ]
 
-\setuphead[subject][
+\definehead[speaker][subject]
+
+\setuphead[speaker][
 	page=no,
 	style={\tf},
 	textstyle=cap,
+	align=flushleft,
 	before={\doifmodeelse{simultaneousblock}{\hskip 1.5in}{\hskip 2.5in}},
 	after={}
 ]
@@ -97,10 +117,10 @@
 	after={}
 ]
 
-\setupcombinedlist[content][list={act,scene}, alternative=c,]
+\setupcombinedlist[content][list={act, scene}, alternative=c,]
 
 \setupinteraction[state=start, color=middleblue]
-\placebookmarks[act,scene]
+\placebookmarks[act, scene]
 
 \defineparagraphs[casting][n=2, before={}, after={\blank}]
 \setupparagraphs[casting][1][width={0.25\textwidth}]
@@ -117,16 +137,21 @@
 \setupparagraphs[simultaneous][2][width={\glueexpr 0.5\textwidth - 0.5em\relax}]
 
 \define[0]\maketitlepage{
-	\title{\getvariable{titlepage}{title}}
-	\author{\getvariable{titlepage}{author}}
-}
+	\vbox{
+		\godown[3in]
+		\covertitle{\getvariable{titlepage}{title}}
 
-\define[0]\makecastpage{
-	\title{\labeltext{cast}}
+		\doiftext{\getvariable{titlepage}{subtitle}}{
+			\coversubtitle{\getvariable{titlepage}{subtitle}}
+		}
+
+		\blank[2*line]
+		\author{By \getvariable{titlepage}{author}}
+	}
 }
 
 \definestartstop[castpage][
-	before={\title{\labeltext{cast}}\blank[3*line]}
+	before={\break\subject{\labeltext{cast}}\blank[3*line]}
 ]
 
 \define[2]\cast{\startcasting#1\casting#2\stopcasting}
@@ -195,7 +220,7 @@
 	\getparameters[xx][#2]
 	\doifdefined{xxsubject}{%
 		\testpage[2]
-		\subject{
+		\speaker{
 			\xxsubject
 			\doifdefined{xxcontinued}{\doif{\xxcontinued}{yes}{~(\labeltext{continued})}}
 		}
