@@ -2,7 +2,27 @@
 
 \mainlanguage[en]
 
-\setupbodyfont[tt, 12pt]
+\starttypescript[courierten]
+	\definefontsynonym[Courier10PitchBT-Roman][file:Courier10PitchBT-Roman]
+	\definefontsynonym[Courier10PitchBT-Italic][file:Courier10PitchBT-Italic]
+	\definefontsynonym[Courier10PitchBT-Bold][file:Courier10PitchBT-Bold]
+	\definefontsynonym[Courier10PitchBT-BoldItalic][file:Courier10PitchBT-BoldItalic]
+\stoptypescript
+
+\starttypescript[courierten]
+	\setup[font:fallback:serif]
+	\definefontsynonym[SerifRegular][Serif]
+	\definefontsynonym[Serif][Courier10PitchBT-Roman][features=default]
+	\definefontsynonym[SerifItalic][Courier10PitchBT-Italic][features=default]
+	\definefontsynonym[SerifBold][Courier10PitchBT-Bold][features=default]
+	\definefontsynonym[SerifBoldItalic][Courier10PitchBT-BoldItalic][features=default]
+\stoptypescript
+
+\starttypescript[courierten]
+	\definetypeface[courierten][rm][serif][courierten][default]
+\stoptypescript
+
+\setupbodyfont[courierten, 12pt]
 \setuppapersize[letter][letter]
 \setupalign[nothyphenated, flushleft]
 \setuppagenumbering[location={header, right}, right={.}]
@@ -13,10 +33,14 @@
 
 \setuplayout[
 	backspace=1.5in,
-	width=6in,
+	leftedge=0.5in,
+	leftmargin=1in,
+	rightmargin=1in,
+	margindistance=0in,
+	width=fit,
 	topspace=0.5in,
 	header=0.5in,
-	height=10in,
+	height=\dimexpr 9.5in + \lineheight\relax,
 	footer=0in
 ]
 
@@ -26,7 +50,7 @@
 	continued={Cont'd},
 	more={More},
 	cast={Cast of Characters},
-	theend={The End},
+	theend={End.},
 	by={By}
 ]
 
@@ -38,7 +62,7 @@
 
 \setuphead[title][
 	page=yes,
-	style={\tf\sc},
+	style={\tf\WORD},
 	align=middle,
 	after={\blank}
 ]
@@ -68,7 +92,7 @@
 
 \setuphead[subject][
 	page=no,
-	style={\tf\sc},
+	style={\tf\WORD},
 	align=middle,
 	after={\blank}
 ]
@@ -78,8 +102,8 @@
 \setuphead[act][
 	page=no,
 	conversion=I,
-	style={\tf\sc},
-	before={\blank\testpage[3]\hskip 2.5in},
+	style={\tf\WORD},
+	before={\blank\testpage[3]\hskip 2in},
 	after={\blank}
 ]
 
@@ -96,9 +120,9 @@
 
 \setuphead[scene][
 	page=no,
-	style={\tf\sc},
+	style={\tf\WORD},
 	numbercommand={\setup[doc:scenenumber]\gobbleoneargument},
-	before={\blank\testpage[3]\hskip 2.5in},
+	before={\blank\testpage[3]\hskip 2in},
 	after={\blank}
 ]
 
@@ -108,7 +132,7 @@
 	page=no,
 	style={\tf},
 	textstyle=cap,
-	before={\doifmodeelse{simultaneousblock}{\hskip 1.5in}{\hskip 2.5in}},
+	before={\doifmodeelse{simultaneousblock}{\hskip 1in}{\hskip 2in}},
 	after={}
 ]
 
@@ -116,9 +140,9 @@
 
 \setuphead[theend][
 	page=no,
-	style={\tf\sc},
+	style={\tf\WORD},
 	textcommand={\labeltext{theend}},
-	before={\vfill\hskip 2.5in},
+	before={\hskip 2in},
 	after={}
 ]
 
@@ -175,7 +199,7 @@
 	\startframedtext[
 		frame=off,
 		offset=none,
-		loffset=2.5in,
+		loffset=2in,
 		width=broad,
 		align=flushleft,
 		before={},
@@ -201,7 +225,7 @@
 	\startframedtext[
 		frame=off,
 		offset=none,
-		loffset=2in,
+		loffset=1.5in,
 		width=broad,
 		align=flushleft,
 		before={},
@@ -220,7 +244,7 @@
 \stopsetups
 
 \startsetups[stage:dialog:before]
-	\startnarrow[left={\doifmodeelse{simultaneousblock}{1in}{2in}}][left]
+	\startnarrow[left={\doifmodeelse{simultaneousblock}{0.5in}{1.5in}}][left]
 	\startblock
 	(
 \stopsetups
@@ -306,7 +330,7 @@
 		frame=off,
 		style={\emph},
 		offset=none,
-		loffset=2.5in,
+		loffset=2in,
 		width=broad,
 		align=flushleft,
 		before={},
