@@ -27,22 +27,32 @@
 \setupalign[nothyphenated, flushleft]
 \setuppagenumbering[location={header, right}, right={.}]
 \setuppagenumber[state=stop]
-\setupsectionblock[bodypart][page=yes, before={\setuppagenumber[state=start]}]
 \setupblank[big]
 \setuptolerance[horizontal, strict]
 
 \setuplayout[
-	backspace=1.5in,
+	top=0.5in,
+	topdistance=0in,
+	header=0.5in,
+	margindistance=0in,
 	leftedge=0.5in,
 	leftmargin=1in,
 	rightmargin=1in,
-	margindistance=0in,
 	width=fit,
-	topspace=0.5in,
-	header=0.5in,
-	height=\dimexpr 9.5in + \lineheight\relax,
-	footer=0in
+	footer=\lineheight,
+	bottom=\dimexpr 1in - \lineheight\relax,
+	bottomdistance=0in,
+	height=fit,
+	topspace=\dimexpr \topheight + \topdistance\relax,
+	backspace=\dimexpr \leftedgewidth + \leftmarginwidth\relax
 ]
+
+\startsetups[doc:bodypart:before]
+	\setuppagenumber[state=start]
+	\setupheader[state=empty]
+\stopsetups
+
+\setupsectionblock[bodypart][page=yes, before={\setup[doc:bodypart:before]}]
 
 \setuplabeltext[
 	chapter={Act~},
@@ -136,16 +146,6 @@
 	after={}
 ]
 
-\definehead[theend][subsubsubject]
-
-\setuphead[theend][
-	page=no,
-	style={\tf\WORD},
-	textcommand={\labeltext{theend}},
-	before={\hskip 2in},
-	after={}
-]
-
 \setupcombinedlist[content][list={act, scene}, alternative=c]
 
 \setupinteraction[state=start, color=middleblue]
@@ -157,13 +157,13 @@
 
 \defineparagraphs[simultaneous][
 	n=2,
-	distance={1em},
+	distance={\bodyfontsize},
 	inner={\enablemode[simultaneousblock]},
 	after={\blank}
 ]
 
-\setupparagraphs[simultaneous][1][width={\glueexpr 0.5\textwidth - 0.5em\relax}]
-\setupparagraphs[simultaneous][2][width={\glueexpr 0.5\textwidth - 0.5em\relax}]
+\setupparagraphs[simultaneous][1][width={\glueexpr 0.5\textwidth - 0.5\bodyfontsize\relax}]
+\setupparagraphs[simultaneous][2][width={\glueexpr 0.5\textwidth - 0.5\bodyfontsize\relax}]
 
 \definestartstop[coverpage][before={\vbox\bgroup\godown[3in]}, after={\egroup\break}]
 
@@ -321,6 +321,10 @@
 	\expandafter\def\csname#2\endcsname##1{\@docharacter[\csname#2name\endcsname]{##1}}
 	\expandafter\def\csname start#2\endcsname{\startdialog[subject={\csname#2name\endcsname}]}
 	\expandafter\def\csname stop#2\endcsname{\stopdialog}
+}
+
+\define[0]\theend{
+	\setupfootertexts[\hskip 2in\WORD\labeltext{theend}][]
 }
 
 \define[1]\draft{\doifmodeelse{final}{\ignorespaces}{\color[middlered]{#1}}}
