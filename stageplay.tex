@@ -26,7 +26,8 @@
 	continued={Cont'd},
 	more={More},
 	cast={Cast of Characters},
-	theend={The End}
+	theend={The End},
+	by={By}
 ]
 
 \definemode[final][keep]
@@ -44,10 +45,15 @@
 
 \definehead[covertitle][title]
 
-\setuphead[covertitle][page=no, textstyle=cap, style={\tf\bf}, before={}, after={}]
+\setuphead[covertitle][
+	page=no,
+	textstyle=cap,
+	style={\tf\bf},
+	before={},
+	after={}
+]
 
 \definehead[coversubtitle][title]
-
 \setuphead[coversubtitle][page=no, before={}, after={}]
 
 \definehead[author][subsubject]
@@ -77,37 +83,36 @@
 	after={\blank}
 ]
 
-\define[1]\@thescenenumber{%
-	\labeltext{section}%
-	\determineheadnumber[chapter]%
-	\convertnumber{I}{\currentheadnumber}%
-	-%
-	\determineheadnumber[section]%
+\startsetups[doc:scenenumber]
+	\labeltext{section}
+	\determineheadnumber[chapter]
+	\convertnumber{I}{\currentheadnumber}
+	-
+	\determineheadnumber[section]
 	\currentheadnumber
-}
+\stopsetups
 
 \definehead[scene][section]
 
 \setuphead[scene][
 	page=no,
 	style={\tf\sc},
-	numbercommand={\@thescenenumber},
+	numbercommand={\setup[doc:scenenumber]\gobbleoneargument},
 	before={\blank\testpage[3]\hskip 2.5in},
 	after={\blank}
 ]
 
-\definehead[speaker][subject]
+\definehead[speaker][subsubject]
 
 \setuphead[speaker][
 	page=no,
 	style={\tf},
 	textstyle=cap,
-	align=flushleft,
 	before={\doifmodeelse{simultaneousblock}{\hskip 1.5in}{\hskip 2.5in}},
 	after={}
 ]
 
-\definehead[theend][subsubject]
+\definehead[theend][subsubsubject]
 
 \setuphead[theend][
 	page=no,
@@ -117,7 +122,7 @@
 	after={}
 ]
 
-\setupcombinedlist[content][list={act, scene}, alternative=c,]
+\setupcombinedlist[content][list={act, scene}, alternative=c]
 
 \setupinteraction[state=start, color=middleblue]
 \placebookmarks[act, scene]
@@ -136,25 +141,30 @@
 \setupparagraphs[simultaneous][1][width={\glueexpr 0.5\textwidth - 0.5em\relax}]
 \setupparagraphs[simultaneous][2][width={\glueexpr 0.5\textwidth - 0.5em\relax}]
 
-\define[0]\maketitlepage{
-	\vbox{
-		\godown[3in]
-		\covertitle{\getvariable{titlepage}{title}}
+\definestartstop[coverpage][before={\vbox\bgroup\godown[3in]}, after={\egroup\break}]
 
-		\doiftext{\getvariable{titlepage}{subtitle}}{
-			\coversubtitle{\getvariable{titlepage}{subtitle}}
-		}
-
-		\blank[2*line]
-		\author{By \getvariable{titlepage}{author}}
+\define[0]\makecoverpage{
+	\startcoverpage
+	\doiftext{\getvariable{metadata}{title}}{
+		\covertitle{\getvariable{metadata}{title}}
 	}
+
+	\doiftext{\getvariable{metadata}{subtitle}}{
+		\coversubtitle{\getvariable{metadata}{subtitle}}
+	}
+
+	\doiftext{\getvariable{metadata}{author}}{
+		\blank[2*line]
+		\author{\labeltext{by}\getvariable{metadata}{author}}
+	}
+	\stopcoverpage
 }
 
-\definestartstop[castpage][
-	before={\break\subject{\labeltext{cast}}\blank[3*line]}
-]
-
-\define[2]\cast{\startcasting#1\casting#2\stopcasting}
+\define[0]\makecastsection{
+	\subject{\labeltext{cast}}
+	\blank[2*line]
+	\placelist[characters]
+}
 
 \definestartstop[block][
 	before={\let\@blockpar\par\let\par\relax},
@@ -162,7 +172,6 @@
 ]
 
 \define[0]\@beforeopen{%
-	\startnotmode[dialogblock]
 	\startframedtext[
 		frame=off,
 		offset=none,
@@ -178,7 +187,6 @@
 \define[0]\@afteropen{%
 	\stopblock
 	\stopframedtext
-	\stopnotmode
 	\blank
 }
 
@@ -217,6 +225,7 @@
 \define[1]\stage{\startstage#1\stopstage}
 
 \def\startdialog#1[#2]{%
+	\begingroup
 	\getparameters[xx][#2]
 	\doifdefined{xxsubject}{%
 		\testpage[2]
@@ -225,6 +234,7 @@
 			\doifdefined{xxcontinued}{\doif{\xxcontinued}{yes}{~(\labeltext{continued})}}
 		}
 	}
+	\endgroup
 	\startframedtext[
 		frame=off,
 		offset=none,
@@ -240,26 +250,30 @@
 
 \define[2]\dialog{\startdialog[subject={#1}]#2\stopdialog}
 
-\def\@docharacter#1#2{\doiftextelse{#2}{\dialog{#1}{#2}}{\uppercase{#1}}}
+\definelist[characters][criterium=local, alternative=f, interaction=none]
 
-\define[2]\addcharacter{%
-	\expandafter\def\csname#1name\endcsname{#2}
-	\expandafter\def\csname#1\endcsname{\@docharacter{#2}}
-	\expandafter\def\csname start#1\endcsname{\startdialog[subject={#2}]}
-	\expandafter\def\csname stop#1\endcsname{\stopdialog}
+\def\@docharacter[#1]#2{\doiftextelse{#2}{\dialog{#1}{#2}}{{\WORD #1}}}
+
+\def\@registercharacter#1{%
+	\doflushatpar{%
+		\dontleavehmode\writetolist[characters]{}{%
+			\startcasting
+			{\WORD \csname#1name\endcsname}
+			\casting
+			\doifdefined{#1pronouns}{(\csname#1pronouns\endcsname)}
+			\doifdefined{#1description}{\csname#1description\endcsname}
+			\stopcasting
+		}%
+	}%
 }
 
-\define[0]\@beforedraft{%
-	\startnotmode[final]
-	\startcolor[middlered]
+\def\setupcharacter#1[#2][#3]{%
+	\getparameters[#2][name=#2, #3]
+	\@registercharacter{#2}
+	\expandafter\def\csname#2\endcsname##1{\@docharacter[\csname#2name\endcsname]{##1}}
+	\expandafter\def\csname start#2\endcsname{\startdialog[subject={\csname#2name\endcsname}]}
+	\expandafter\def\csname stop#2\endcsname{\stopdialog}
 }
-
-\define[0]\@afterdraft{%
-	\stopcolor
-	\stopnotmode
-}
-
-\definestartstop[draft][before={\@beforedraft}, after={\@afterdraft}]
 
 \define[1]\draft{\doifmodeelse{final}{\ignorespaces}{\color[middlered]{#1}}}
 
