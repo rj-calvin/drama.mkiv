@@ -171,7 +171,7 @@
 	after={\let\par\@blockpar}
 ]
 
-\define[0]\@beforeopen{%
+\startsetups[open:before]
 	\startframedtext[
 		frame=off,
 		offset=none,
@@ -182,19 +182,22 @@
 		after={}
 	]
 	\startblock
-}
+	(
+\stopsetups
 
-\define[0]\@afteropen{%
+\startsetups[open:after]
+	\unskip
+	)
 	\stopblock
 	\stopframedtext
 	\blank
-}
+\stopsetups
 
-\definestartstop[open][before={\@beforeopen(}, after={\unskip)\@afteropen}]
+\definestartstop[open][before={\setup[open:before]}, after={\setup[open:after]}]
 
 \define[1]\open{\startopen#1\stopopen}
 
-\define[0]\@beforeframedstage{%
+\startsetups[stage:framed:before]
 	\startframedtext[
 		frame=off,
 		offset=none,
@@ -204,23 +207,44 @@
 		before={},
 		after={}
 	]
-}
-
-\define[0]\@beforedialogstage{%
-	\startnarrow[left={\doifmodeelse{simultaneousblock}{1in}{2in}}][left]
-}
-
-\define[0]\@beforestage{%
-	\doifmodeelse{dialogblock}{\@beforedialogstage}{\@beforeframedstage}
 	\startblock
-}
+	(
+\stopsetups
 
-\define[0]\@afterstage{%
+\startsetups[stage:framed:after]
+	\unskip
+	)
 	\stopblock
-	\doifmodeelse{dialogblock}{\stopnarrow}{\stopframedtext\blank}
-}
+	\stopframedtext
+	\blank
+\stopsetups
 
-\definestartstop[stage][before={\@beforestage(}, after={\unskip)\@afterstage}]
+\startsetups[stage:dialog:before]
+	\startnarrow[left={\doifmodeelse{simultaneousblock}{1in}{2in}}][left]
+	\startblock
+	(
+\stopsetups
+
+\startsetups[stage:dialog:after]
+	\unskip
+	)
+	\stopblock
+	\stopnarrow
+\stopsetups
+
+\startsetups[stage:before]
+	\doifmodeelse{dialogblock}
+		{\setup[stage:dialog:before]}
+		{\setup[stage:framed:before]}
+\stopsetups
+
+\startsetups[stage:after]
+	\doifmodeelse{dialogblock}
+		{\setup[stage:dialog:after]}
+		{\setup[stage:framed:after]}
+\stopsetups
+
+\definestartstop[stage][before={\setup[stage:before]}, after={\setup[stage:after]}]
 
 \define[1]\stage{\startstage#1\stopstage}
 
@@ -276,6 +300,55 @@
 }
 
 \define[1]\draft{\doifmodeelse{final}{\ignorespaces}{\color[middlered]{#1}}}
+
+\startsetups[stage:italicize:framed:before]
+	\startframedtext[
+		frame=off,
+		style={\emph},
+		offset=none,
+		loffset=2.5in,
+		width=broad,
+		align=flushleft,
+		before={},
+		after={}
+	]
+	\startblock
+\stopsetups
+
+\startsetups[stage:italicize:framed:after]
+	\stopblock
+	\stopframedtext
+	\blank
+\stopsetups
+
+\startsetups[stage:italicize:before]
+	\doifmodeelse{dialogblock}
+		{\setup[stage:dialog:before]}
+		{\setup[stage:italicize:framed:before]}
+\stopsetups
+
+\startsetups[stage:italicize:after]
+	\doifmodeelse{dialogblock}
+		{\setup[stage:dialog:after]}
+		{\setup[stage:italicize:framed:after]}
+\stopsetups
+
+\startsetups[doc:stage:italicize]
+	\setupstartstop[stage][
+		before={\setup[stage:italicize:before]},
+		after={\setup[stage:italicize:after]}
+	]
+\stopsetups
+
+\def\setupstageplay#1[#2]{
+	\getparameters[stageplay:][stage=, #2]
+
+	\processaction[\getvalue{stageplay:stage}][
+		italicize=>{\setup[doc:stage:italicize]},
+		default=>\relax,
+		unknown=>\unknown{\commalistelement}
+	]
+}
 
 \protect
 
