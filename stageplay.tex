@@ -71,8 +71,8 @@
 \definemeasure[simultaneousdelta][0.5\measured{speakeroffset}]
 
 \setuplabeltext[
-	chapter={Act~},
-	section={Scene~},
+	act={Act~},
+	scene={Scene~},
 	prologue={Prologue},
 	epilogue={Epilogue},
 	continued={Cont'd},
@@ -115,44 +115,44 @@
 \setuphead[title][
 	page=yes,
 	textstyle=cap,
-	style={\tf},
+	style=\tf,
 	align=middle,
 	textcommand=\firstofoneargument,
-	before={\blank},
-	after={\blank}
+	before=\blank,
+	after=\blank
 ]
 
 \definehead[covertitle][title]
 
 \setuphead[covertitle][
-	style={\tf\bf},
-	before={},
-	after={}
+	style=\tf\bf,
+	before=\relax,
+	after=\relax
 ]
 
 \definehead[coversubtitle][covertitle]
-\setuphead[coversubtitle][page=no, style={\tf}]
+\setuphead[coversubtitle][page=no, style=\tf]
 
 \definehead[author][subsubject]
 
 \setuphead[author][
 	page=no,
-	style={\tf},
+	style=\tf,
 	align=middle,
 	interlinespace=0pt,
-	before={},
-	after={\blank}
+	before=\relax,
+	after=\blank
 ]
 
 \setuphead[subject][
 	page=no,
 	textstyle=cap,
-	style={\tf},
+	style=\tf,
 	align=flushleft,
 	interlinespace=0pt,
-	textcommand={\advance\leftskip\measure{subjectoffset}\firstofoneargument},
-	before={\blank},
-	after={\blank}
+	textcommand=\advance\leftskip\measure{subjectoffset}\firstofoneargument,
+	before=\blank,
+	after=\blank
 ]
 
 \def\@dosettingtext#1{\labeltext{setting}\doiftext{#1}{:~#1}}
@@ -164,19 +164,19 @@
 \setuphead[settingtime][textcommand=\@dosettingtimetext]
 
 \definehead[synopsis][subject]
-\setuphead[synopsis][textcommand={\labeltext{synopsis}\gobbleoneargument}]
+\setuphead[synopsis][textcommand=\labeltext{synopsis}\gobbleoneargument]
 
 \setuphead[chapter][
 	page=no,
-	conversion=I,
-	style={\tf\WORD},
+	conversion=romannumerals,
+	style=\tf\WORD,
 	interlinespace=0pt,
-	textcommand={\advance\leftskip\measure{headeroffset}\firstofoneargument},
+	textcommand=\advance\leftskip\measure{headeroffset}\firstofoneargument,
 	before={\testpage[3]},
-	after={\blank}
+	after=\blank
 ]
 
-\definehead[act][chapter]
+\definehead[act][chapter][bodypartlabel=act]
 
 \def\@doprologuetext#1{%
 	\advance\leftskip\measure{headeroffset}%
@@ -204,25 +204,21 @@
 	textcommand=\@doepiloguetext
 ]
 
-\startsetups[doc:scenenumber]
-	\labeltext{section}
-	\determineheadnumber[chapter]
-	\convertnumber{I}{\currentheadnumber}
-	-
-	\determineheadnumber[section]
-	\currentheadnumber
-\stopsetups
+\definehead[scene][section][bodypartlabel=scene]
 
-\definehead[scene][section]
+\definestructureseparatorset[sceneseparatorset][,-,][]
+\definestructureconversionset[sceneconversionset][,R,][]
 
 \setuphead[scene][
 	page=no,
-	style={\tf\WORD},
+	style=\tf\WORD,
 	interlinespace=0pt,
-	textcommand={\advance\leftskip\measure{headeroffset}\firstofoneargument},
-	numbercommand={\setup[doc:scenenumber]\gobbleoneargument},
+	sectionseparatorset=sceneseparatorset,
+	sectionconversionset=sceneconversionset,
+	sectionsegments=act:scene,
+	textcommand=\advance\leftskip\measure{headeroffset}\firstofoneargument,
 	before={\testpage[3]},
-	after={\blank}
+	after=\blank
 ]
 
 \def\@speakeroffset{%
@@ -236,7 +232,7 @@
 \setuphead[speaker][
 	style={\tf},
 	interlinespace=0pt,
-	textcommand={\advance\leftskip\@speakeroffset\firstofoneargument},
+	textcommand=\advance\leftskip\@speakeroffset\firstofoneargument,
 	before={\testpage[3]},
 	after={\page[none]}
 ]
@@ -250,32 +246,34 @@
 \defineparagraphs[casting][
 	n=2,
 	distance=\zeropoint,
-	before={},
-	after={\blank}
+	before=\relax,
+	after=\blank
 ]
 
-\setupparagraphs[casting][1][width={0.25\textwidth}]
-\setupparagraphs[casting][2][width={0.75\textwidth}]
+\setupparagraphs[casting][1][width=0.25\textwidth]
+\setupparagraphs[casting][2][width=0.75\textwidth]
 
-\startsetups[doc:simultaneous:inner]
-	\enablemode[simultaneousblock]
-	\setupinterlinespace[reset]
-	\setupblank[big]
-	\setupwhitespace[none]
-\stopsetups
+\newtoks\everybeforesimultaneous
+\newtoks\everyaftersimultaneous
+\newtoks\everyinnersimultaneous
+
+\appendtoks\blank\to\everyaftersimultaneous
 
 \defineparagraphs[simultaneous][
 	n=2,
 	align=flushleft,
 	distance=\bodyfontsize,
-	inner={\setup[doc:simultaneous:inner]},
-	before={\vbox\bgroup\vskip\dimexpr\strutdepthfactor\lineheight\relax},
-	after={\egroup\blank}
+	inner={\enablemode[simultaneousblock]\the\everyinnersimultaneous},
+	before=
+		\the\everybeforesimultaneous
+		\vbox\bgroup
+		\vskip\dimexpr\strutdepthfactor\lineheight\relax,
+	after=\egroup\the\everyaftersimultaneous
 ]
 
 \def\@simultaneouswidth{\glueexpr 0.5\textwidth - 0.5\bodyfontsize\relax}
-\setupparagraphs[simultaneous][1][width={\@simultaneouswidth}]
-\setupparagraphs[simultaneous][2][width={\@simultaneouswidth}]
+\setupparagraphs[simultaneous][1][width=\@simultaneouswidth]
+\setupparagraphs[simultaneous][2][width=\@simultaneouswidth]
 
 \startsetups[coverpage:footer]
 	\let\\\blank
@@ -289,6 +287,7 @@
 \stopsetups
 
 \startsetups[coverpage]
+	\begingroup
 	\let\\\blank
 	\setuplayout[coverpage]
 	\doiftext{\getvalue{stageplay:title}}{
@@ -301,9 +300,10 @@
 		\blank[2*line]
 		\author{\labeltext{by}~\getvalue{stageplay:author}}
 	}
-	\setupfootertexts[{\setup[coverpage:footer]}][][][]
+	\setupfootertexts[{\setup[coverpage:footer]}][]
 	\break
 	\setuplayout[reset]
+	\endgroup
 \stopsetups
 
 \def\makecoverpage{\setup[coverpage]}
@@ -315,14 +315,17 @@
 	\blank[2*line]
 }
 
-\def\@startrelaxpar{\let\@oldpar\par\let\par\relax}
-\def\@stoprelaxpar{\let\par\@oldpar}
+\def\startrelaxpar{\let\@oldpar\par\let\par\relax}
+\def\stoprelaxpar{\let\par\@oldpar}
+
+\newtoks\everybeforeblock
+\newtoks\everyafterblock
 
 \def\dostartblock[#1]{%
 	\begingroup
 	\getparameters[local][before=\relax, after=\relax, style=\relax, #1]%
 	\endgraf
-	\@startrelaxpar
+	\the\everybeforeblock
 	\vtop\bgroup
 	\localbefore
 	\localstyle
@@ -330,173 +333,207 @@
 
 \def\startblock{\dosingleempty\dostartblock}
 
-\def\stopblock{\localafter\egroup\@stoprelaxpar\endgroup}
+\def\stopblock{\localafter\egroup\the\everyafterblock\endgroup}
 
-\definestartstop[open][before={\setup[open:before]}, after={\setup[open:after]}]
+\newtoks\everybeforeopen
+\newtoks\everyafteropen
+
+\definemode[italicizedopen][keep]
+\definemode[uppercasedopen][keep]
+
+\startsetups[doc:open:italicized:before]
+	\startblock[
+		style=\emph,
+		before=\advance\leftskip\measure{openoffset}
+	]
+\stopsetups
+
+\startsetups[doc:open:default:before]
+	\startblock[before=\advance\leftskip\measure{openoffset}]
+	(
+\stopsetups
+
+\startsetups[doc:open:alt:after]
+	\stopblock
+	\blank
+\stopsetups
+
+\startsetups[doc:open:default:after]
+	\unskip
+	)
+	\stopblock
+	\blank
+\stopsetups
+
+\startsetups[doc:open:before]
+	\startmodeset
+		[italicizedopen] {\setup[doc:open:italicized:before]}
+		[default] {
+			\startmodeset
+				[uppercasedopen] {\startblock[style=\WORD]}
+				[default] {\setup[doc:open:default:before]}
+			\stopmodeset
+		}
+	\stopmodeset
+\stopsetups
+
+\appendtoks\setup[doc:open:before]\to\everybeforeopen
+
+\startsetups[doc:open:after]
+	\startmodeset
+		[italicizedopen, uppercasedopen] {\setup[doc:open:alt:after]}
+		[default] {\setup[doc:open:default:after]}
+	\stopmodeset
+\stopsetups
+
+\appendtoks\setup[doc:open:after]\to\everyafteropen
+
+\definestartstop[open][
+	before=\the\everybeforeopen,
+	after=\the\everyafteropen
+]
 
 \def\open#1{\startopen#1\stopopen}
 
-\startsetups[open:italicize:before]
-	\startblock[style={\emph}, before={\advance\leftskip\measure{openoffset}}]
+\newtoks\everybeforestage
+\newtoks\everyafterstage
+
+\newtoks\everybeforeparenthetical
+\newtoks\everyafterparenthetical
+
+\definemode[italicizedstage][keep]
+
+\startsetups[doc:stage:before]
+	\startmodeset
+		[dialogblock] {
+			\startmodeset
+				[simultaneousblock] {
+					\testpage[2]
+					\startnarrow[
+						left=\dimexpr
+							\measured{parentheticaloffset} - \measured{simultaneousdelta}
+						\relax
+					][left]
+					(
+				}
+				[default] {
+					\testpage[2]
+					\startnarrow[left=\measure{parentheticaloffset}][left]
+					(
+				}
+			\stopmodeset
+		}
+		[default] {
+			\startmodeset
+				[italicizedstage] {
+					\startblock[
+						style=\emph,
+						before=\advance\leftskip\measure{openoffset}
+					]
+				}
+				[default] {
+					\startblock[before=\advance\leftskip\measure{stageoffset}]
+					(
+				}
+			\stopmodeset
+		}
+	\stopmodeset
 \stopsetups
 
-\startsetups[open:italicize:after]
-	\stopblock
-	\blank
+\appendtoks\setup[doc:stage:before]\to\everybeforestage
+
+\startsetups[doc:stage:after]
+	\startmodeset
+		[dialogblock] {
+			\unskip
+			)
+			\stopnarrow
+		}
+		[default] {
+			\startmodeset
+				[italicizedstage] {
+					\stopblock
+					\blank
+				}
+				[default] {
+					\unskip
+					)
+					\stopblock
+					\blank
+				}
+			\stopmodeset
+		}
+	\stopmodeset
 \stopsetups
 
-\startsetups[doc:open:italicize]
-	\setupstartstop[open][
-		before={\setup[open:italicize:before]},
-		after={\setup[open:italicize:after]}
-	]
-\stopsetups
+\appendtoks\setup[doc:stage:after]\to\everyafterstage
 
-\startsetups[open:uppercase:before]
-	\startblock[style={\WORD}]
-	\@startrelaxpar
-\stopsetups
-
-\startsetups[open:uppercase:after]
-	\@stoprelaxpar
-	\stopblock
-	\blank
-\stopsetups
-
-\startsetups[doc:open:uppercase]
-	\setupstartstop[open][
-		before={\setup[open:uppercase:before]},
-		after={\setup[open:uppercase:after]}
-	]
-\stopsetups
-
-\startsetups[open:before]
-	\startblock[before={\advance\leftskip\measure{openoffset}}]
-	(
-\stopsetups
-
-\startsetups[open:after]
-	\unskip
-	)
-	\stopblock
-	\blank
-\stopsetups
-
-\definestartstop[stage][before={\setup[stage:before]}, after={\setup[stage:after]}]
+\definestartstop[stage][
+	before=\the\everybeforestage,
+	after=\the\everyafterstage
+]
 
 \def\stage#1{\startstage#1\stopstage}
 
-\startsetups[doc:stage:italicize]
-	\definemeasure[stageoffset][\measure{openoffset}]
-	\setupstartstop[stage][
-		before={\setup[stage:italicize:before]},
-		after={\setup[stage:italicize:after]}
-	]
-\stopsetups
+% \newconditional\@speakeractive
+% \let\@lastsplitspeaker\empty
 
-\startsetups[stage:before]
-	\doifmodeelse{dialogblock}
-		{\setup[stage:dialog:before]}
-		{\setup[stage:framed:before]}
-\stopsetups
+% \def\@dospeakercontinue{%
+% 	\speaker{\settightstrut\@lastsplitspeaker~(\labeltext{continued})}%
+% }
 
-\startsetups[stage:after]
-	\doifmodeelse{dialogblock}
-		{\setup[stage:dialog:after]}
-		{\setup[stage:framed:after]}
-\stopsetups
+% \appendtoks
+% 	\ifconditional\@speakeractive
+% 		\global\let\@lastsplitspeaker\dialogspeaker
+% 	\fi
+% \to \everyendoftextbody
 
-\startsetups[stage:italicize:framed:before]
-	\startblock[style={\emph}, before={\advance\leftskip\measure{stageoffset}}]
-\stopsetups
+% \appendtoks
+% 	\ifx\@lastsplitspeaker\empty\else
+% 		% \@dospeakercontinue
+% 	\fi
+% 	\global\let\@lastsplitspeaker\empty
+% \to \everyaftershipout
 
-\startsetups[stage:italicize:framed:after]
-	\stopblock
-	\blank
-\stopsetups
+\newtoks\everybeforedialog
+\newtoks\everybeforecontinuedialog
+\newtoks\everyaftercontinuedialog
+\newtoks\everyafterdialog
 
-\startsetups[stage:italicize:before]
-	\doifmodeelse{dialogblock}
-		{\setup[stage:dialog:before]}
-		{\setup[stage:italicize:framed:before]}
-\stopsetups
-
-\startsetups[stage:italicize:after]
-	\doifmodeelse{dialogblock}
-		{\setup[stage:dialog:after]}
-		{\setup[stage:italicize:framed:after]}
-\stopsetups
-
-\startsetups[stage:framed:before]
-	\startblock[before={\advance\leftskip\measure{stageoffset}}]
-	(
-\stopsetups
-
-\startsetups[stage:framed:after]
-	\unskip
-	)
-	\stopblock
-	\blank
-\stopsetups
-
-\startsetups[stage:dialog:before]
-	\testpage[2]
-	\startnarrow[
-		left={
-			\doifmodeelse{simultaneousblock}
-				{\dimexpr\measured{parentheticaloffset} - \measured{simultaneousdelta}\relax}
-				{\measure{parentheticaloffset}}
-		}
-	][left]
-	(
-\stopsetups
-
-\startsetups[stage:dialog:after]
-	\unskip
-	)
-	\stopnarrow
-\stopsetups
-
-\newconditional\@speakeractive
-\let\@lastsplitspeaker\empty
-
-\def\@dospeakercontinue{%
-	\speaker{\settightstrut\@lastsplitspeaker~(\labeltext{continued})}%
-}
-
-\appendtoks
-	\ifconditional\@speakeractive
-		\global\let\@lastsplitspeaker\dialogspeaker
-	\fi
-\to \everyendoftextbody
-
-\appendtoks
-	\ifx\@lastsplitspeaker\empty\else
-		% \@dospeakercontinue
-	\fi
-	\global\let\@lastsplitspeaker\empty
-\to \everyaftershipout
-
-\def\startdialog#1[#2]{%
+\def\@dostartdialog#1[#2]{%
 	\enablemode[dialogblock]%
-	\getparameters[dialog][speaker=, continued=no, #2]%
-	\begingroup
+	\getparameters[dialog][speaker=\empty, continued=no, #2]%
+	\the\everybeforedialog
 	\speaker{\dialogspeaker}%
-	\@startrelaxpar
 	\vtop\bgroup
-	\global\settrue\@speakeractive
+	% \global\settrue\@speakeractive
 }
+
+\def\startdialog{\dosingleempty\@dostartdialog}
+
+\def\continue{
+	\doifmode{dialogblock}{%
+		\subject{(\labeltext{more})}%
+		\egroup
+		\the\everybeforecontinuedialog
+		\page
+		\speaker{\settightstrut\dialogspeaker~(\labeltext{continued})}%
+		\the\everyaftercontinuedialog
+		\vtop\bgroup
+	}%
+	\ignorespaces
+}
+
+\appendtoks\blank\to\everyafterdialog
 
 \def\stopdialog{%
-	\global\setfalse\@speakeractive
+	% \global\setfalse\@speakeractive
 	\egroup
-	\@stoprelaxpar
-	\endgroup
+	\the\everyafterdialog
 	\disablemode[dialogblock]%
-	\blank
 }
 
-\def\dialog#1#2{\startdialog[speaker={#1}]#2\stopdialog}
+\def\dialog#1#2{\startdialog[speaker=#1]#2\stopdialog}
 
 \def\@docharacter#1#2{%
 	\doiftextelse{#2}%
@@ -508,7 +545,7 @@
 	\doflushatpar{%
 		\dontleavehmode\writetolist[cast]{}{%
 			\startcasting
-			{\WORD \csname#1name\endcsname}%
+			{\WORD {\csname#1name\endcsname}}%
 			\casting
 			\doifdefined{#1pronouns}{(\csname#1pronouns\endcsname)}%
 			\doifdefined{#1description}{\space\csname#1description\endcsname}%
@@ -533,17 +570,40 @@
 
 \def\draft#1{\doifmodeelse{final}{\ignorespaces}{\color[middlered]{#1}}}
 
+\newbox\draftbox
+
+\def\startdraft{\setbox\draftbox\vpack\bgroup\startcolor[middlered]}
+\def\stopdraft{\stopcolor\egroup\doifnotmode{final}{\box\draftbox\relax}\blank}
+
 \def\@dosetupstageplay[#1]{%
-	\getparameters[stageplay:]%
-		[stage=, open=, title=, subtitle=, copyright=, contact=, #1]%
+	\getparameters[stageplay:][%
+		stage=\empty,%
+		open=\empty,%
+		title=\empty,%
+		subtitle=\empty,%
+		copyright=\empty,%
+		contact=\empty,%
+		final=\empty,%
+		#1%
+	]%
 	\processaction[\getvalue{stageplay:stage}][
-		italicize=>{\setup[doc:stage:italicize]},
+		italicize=>{
+			\definemeasure[stageoffset][\measure{openoffset}]
+			\enablemode[italicizedstage]
+		},
 		default=>\relax,
 		unknown=>\unknown{\commalistelement}
 	]%
 	\processaction[\getvalue{stageplay:open}][
-		italicize=>{\setup[doc:open:italicize]},
-		uppercase=>{\setup[doc:open:uppercase]},
+		italicize=>{\enablemode[italicizedopen]},
+		uppercase=>{\enablemode[uppercasedopen]},
+		default=>\relax,
+		unknown=>\unknown{\commalistelement}
+	]%
+	\processaction[\getvalue{stageplay:final}][
+		yes=>{\enablemode[final]},
+		no=>{\disablemode[final]},
+		keep=>\relax,
 		default=>\relax,
 		unknown=>\unknown{\commalistelement}
 	]%
