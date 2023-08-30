@@ -1,0 +1,647 @@
+\startenvironment drama
+\environment courier10pitch
+
+\unprotect
+
+\mainlanguage[en]
+
+\setupbodyfont[courier10pitch, 12pt]
+\setuppapersize[letter][letter]
+
+\setuplayout[
+	top=0.5in,
+	topdistance=\zeropoint,
+	header=0.5in,
+	margindistance=\zeropoint,
+	leftedge=0.5in,
+	leftmargin=1in,
+	rightmargin=1in,
+	width=fit,
+	footer=0.5in,
+	bottom=0.5in,
+	bottomdistance=\zeropoint,
+	height=fit,
+	topspace=\dimexpr \topheight + \topdistance\relax,
+	backspace=\dimexpr \leftedgewidth + \leftmarginwidth\relax,
+]
+
+\definemakeup[coverpage][
+	top=\vfill,
+	bottom=\vfill,
+	align=middle,
+	footerstate=start,
+]
+
+\setuplayout[coverpage][
+	top=1in,
+	header=\zeropoint,
+	footer=\zeropoint,
+	bottom=1in,
+]
+
+\let\startcoverpage\startcoverpagemakeup
+\let\stopcoverpage\stopcoverpagemakeup
+
+\setupalign[nothyphenated, flushleft]
+\setuppagenumbering[location={header, right}, right={.}]
+\setuppagenumber[state=stop]
+\setupwhitespace[big]
+\setupblank[white]
+\setupinterlinespace[small]
+\setuptolerance[horizontal, tolerant]
+\setuptolerance[vertical, verystrict]
+
+\definemode[final][keep]
+
+\defineinterfaceconstant{introduce}{introduce}
+\defineinterfaceconstant{introduction}{introduction}
+\defineinterfaceconstant{introductions}{introductions}
+\defineinterfaceconstant{introductionstyle}{\c!introduction\c!style}
+\defineinterfaceconstant{parenthetical}{parenthetical}
+\defineinterfaceconstant{parentheticalstyle}{\c!parenthetical\c!style}
+\defineinterfaceconstant{cue}{cue}
+\defineinterfaceconstant{split}{split}
+\defineinterfaceconstant{splitcue}{\c!split\c!cue}
+\defineinterfaceconstant{splitparenthetical}{\c!split\c!parenthetical}
+\defineinterfaceconstant{splitleft}{\c!split\c!left}
+\defineinterfaceconstant{splitright}{\c!split\c!right}
+\defineinterfaceconstant{speaker}{speaker}
+\defineinterfaceconstant{extension}{extension}
+
+\setuplabeltext[
+	anonymous={Anonymous},
+	by={By},
+	continued={Cont'd},
+	more={More},
+	end={End}%
+]
+
+\newtoks\everybeforefrontpart
+\newtoks\everyafterfrontpart
+
+\setupsectionblock[frontpart][
+	page=yes,
+	before=\the\everybeforefrontpart,
+	after=\the\everyafterfrontpart,
+]
+
+\newtoks\everybeforebodypart
+\newtoks\everyafterbodypart
+
+\appendtoks
+	\setuppagenumber[state=start]%
+	\setupheader[state=empty]%
+\to \everybeforebodypart
+
+\setupsectionblock[bodypart][
+	page=yes,
+	before=\the\everybeforebodypart,
+	after=\the\everyafterbodypart,
+]
+
+\newtoks\everybeforebackpart
+\newtoks\everyafterbackpart
+
+\setupsectionblock[backpart][
+	page=yes,
+	before=\the\everybeforebackpart,
+	after=\the\everyafterbackpart,
+]
+
+\newtoks\everybeforeappendix
+\newtoks\everyafterappendix
+
+\setupsectionblock[appendix][
+	page=yes,
+	before=\the\everybeforeappendix,
+	after=\the\everyafterappendix,
+]
+
+\appendtoks
+	\expandafter\newdimen\csname\currenthead offset\endcsname
+	\csname\currenthead offset\endcsname\zeropoint
+\to \everydefinehead
+
+\def\getheadoffset{%
+	\ifcsname\currenthead offset\endcsname
+		\csname\currenthead offset\endcsname\relax
+	\else
+		\zeropoint
+	\fi
+}
+
+\def\getheadprefix{%
+	\edef\currentheadprefix{\headparameter\c!prefix}%
+	\let\currentheadprefixtext\empty
+	\ifx\currentheadprefix\empty\else
+		\trylabeltext{\currentheadprefix}%
+		\space
+	\fi
+}
+
+\setuphead[title][
+	page=yes,
+	style=\tf\bf\WORD,
+	align=middle,
+	textstyle=normal,
+	textcommand=\getheadprefix\firstofoneargument,
+	before=\relax,
+	after=\relax,
+]
+
+\definehead[subtitle][title][
+	page=no,
+	style=\tf\WORD
+]
+
+\definehead[subsubtitle][subtitle][style=\tf]
+
+\definehead[author][subsubtitle][
+	prefix=by,
+	before={\blank[2*line]}
+]
+
+\setuphead[chapter][
+	page=no,
+	align=flushleft,
+	style=\tf\WORD,
+	textcommand=%
+		\advance\leftskip\getheadoffset
+		\getheadprefix
+		\firstofoneargument,
+	before=\relax,
+	after=\relax,
+]
+
+\setuphead[section][
+	page=no,
+	align=flushleft,
+	style=\tf\WORD,
+	textcommand=%
+		\advance\leftskip\getheadoffset
+		\getheadprefix
+		\firstofoneargument,
+	before=\relax,
+	after=\relax,
+]
+
+\setuphead[subject][
+	page=no,
+	align=flushleft,
+	style=\tf\WORD,
+	textcommand=%
+		\advance\leftskip\getheadoffset
+		\getheadprefix
+		\firstofoneargument,
+	before=\relax,
+	after=\relax,
+]
+
+\definehead[cue][subject][
+	before=\relax,
+	after=\relax,
+]
+
+\setupcombinedlist[content][list={chapter, section}, alternative=c]
+\setupinteraction[state=start, color=middleblue]
+\placebookmarks[chapter, section]
+
+\def\vpar{%
+	\bgroup\dowithnextbox{%
+		\setbox\scratchbox\vtop{\unvcopy\nextbox}%
+		\scratchdimen\dimexpr\dp\scratchbox - \dp\nextbox\relax
+		\dp\scratchbox\dp\nextbox
+		\par\box\scratchbox
+		\kern\scratchdimen
+		\egroup
+	}%
+	\vbox
+}
+
+\def\trylabeltext#1{%
+	\doiftextelse{\labeltext{#1}}{\labeltext{#1}}{#1}%
+}
+
+\def\fakeuppercase#1#2{\expandafter\uppercase{#1}#2}
+
+\def\charactersparameter#1{\getvalue{characters:#1}}
+\def\setupcharacters{\getparameters[characters:]}
+
+\setupcharacters[
+	\c!style=\empty,
+	\c!introductions=\v!yes,
+	\c!introductionstyle=\empty,
+]
+
+\def\namedcharacterparameter[#1]#2{\getvalue{#1#2}}
+\def\characterparameter#1{\getvalue{\currentcharacter#1}}
+
+\newtoks\everysetupcharacter
+\newtoks\everydefinecharacter
+
+\def\definecharacter{\dodoubleempty\dodefinecharacter}
+
+\def\dodefinecharacter[#1][#2]{%
+	\getparameters[#1][%
+		\c!name={\fakeuppercase#1},
+		\c!introduce={\charactersparameter\c!introductions},
+		\c!cue=\empty,
+		#2,
+	]%
+	\setvalue{character:#1}{\empty}%
+	\edef\currentcharacter{#1}%
+	\edef\currentcharactername{\characterparameter\c!name}%
+	\expandafter\def\csname#1\endcsname{\dodoubleempty\printcharacter[#1]}%
+	\expandafter\def\csname setup#1\endcsname{\dodoubleempty\setupcharacter[#1]}%
+	\expandafter\def\csname start#1\endcsname{\dotripleempty\startcharacter[#1]}%
+	\expandafter\def\csname stop#1\endcsname{\stopcharacter}%
+	\the\everydefinecharacter
+}
+
+\def\setupcharacter{\dodoubleempty\dosetupcharacter}
+
+\def\dosetupcharacter[#1][#2]{%
+	\getparameters[#1][#2]%
+	\edef\currentcharacter{#1}%
+	\the\everysetupcharacter
+}
+
+\unexpanded\def\printcharacter[#1][#2]{%
+	\edef\currentcharacter{#1}%
+	\edef\currentcharacterintroduce{\characterparameter\c!introduce}%
+	\def\currentcharacterstyle{%
+		\ifdialogmode\else
+			\charactersparameter\c!style
+			\ifx\currentcharacterintroduce\v!yes
+				\setgvalue{\currentcharacter \c!introduce}{\v!no}%
+				\charactersparameter\c!introductionstyle
+			\fi
+		\fi
+	}%
+	\ifsecondargument
+		{\currentcharacterstyle\characterparameter{#2}}%
+	\else
+		{\currentcharacterstyle\characterparameter\c!name}%
+	\fi
+	\autoinsertnextspace
+}
+
+\def\startcharacter[#1][#2][#3]{%
+	\begingroup
+	\edef\currentcharacter{#1}%
+	\checkparameters[#2]
+	\ifsecondargument
+		\ifparameters
+			\startdialog[\c!speaker=\currentcharacter][#2, #3]%
+		\else
+			\startdialog[\c!speaker=\currentcharacter, \c!extension={#2}][#3]%
+		\fi
+	\else
+		\startdialog[\c!speaker=\currentcharacter]%
+	\fi
+}
+
+\def\stopcharacter{\stopdialog\endgroup}
+
+\newconditional\splitmode
+\def\ifsplitmode{\ifconditional\splitmode}
+
+\newtoks\everybeforesplit
+\newtoks\everyinnersplit
+\newtoks\everyaftersplit
+
+\defineparagraphs[splitparagraphs][
+	n=2,
+	align=flushleft,
+	rulethickness=\zeropoint,
+	distance=1.5\bodyfontsize,
+	inner=\settrue\splitmode\the\everyinnersplit,
+	before=\kern\strutdp,
+	after=\relax,
+]
+
+\def\setupsplit{\setupparagraphs[splitparagraphs]}
+
+\def\startsplit{%
+	\the\everybeforesplit
+	\startsplitparagraphs
+}
+
+\let\split\splitparagraphs
+
+\def\stopsplit{%
+	\stopsplitparagraphs
+	\the\everyaftersplit
+}
+
+\newtoks\everybeforedialog
+\newtoks\everyafterdialog
+
+\newconditional\dialogmode
+\def\ifdialogmode{\ifconditional\dialogmode}
+
+\newbox\dialogbox
+\newbox\continuebox
+\newbox\parentheticalbox
+
+\def\dialogparameter#1{\getvalue{dialog:#1}}
+\def\dosetupdialog[#1]{\getparameters[dialog:][#1]}
+\def\setupdialog{\dosingleempty\dosetupdialog}
+
+\defineinterfacevariable{never}{never}
+
+\setupdialog[
+	\c!style=\empty,
+	\c!parentheticalstyle=\empty,
+	\c!tolerance=\v!strict,
+	\c!cue=\zeropoint,
+	\c!parenthetical=\zeropoint,
+	\c!left=\zeropoint,
+	\c!right=\zeropoint,
+	\c!splitcue=\empty,
+	\c!splitparenthetical=\empty,
+	\c!splitleft=\zeropoint,
+	\c!splitright=\zeropoint,
+	\c!before=\relax,
+	\c!after=\relax,
+]
+
+\def\installdialogtolerancemethod#1#2{\setvalue{dialogtolerance:#1}{#2}}
+
+\installdialogtolerancemethod\v!never{%
+	\def\currentdialogtolerance{-1000}%
+}
+
+\installdialogtolerancemethod\v!verystrict{%
+	\def\currentdialogtolerance{\plusone}%
+}
+
+\installdialogtolerancemethod\v!strict{%
+	\def\currentdialogtolerance{\plustwo}%
+}
+
+\installdialogtolerancemethod\v!tolerant{%
+	\def\currentdialogtolerance{\plusthree}%
+}
+
+\installdialogtolerancemethod\v!verytolerant{%
+	\def\currentdialogtolerance{\plusfive}%
+}
+
+\def\installdialogtolerance{%
+	\edef\dialogtoleranceparameter{\dialogparameter\c!tolerance}%
+	\doifinsetelse
+		{\dialogtoleranceparameter}%
+		{\v!never,\v!verystrict,\v!strict,\v!tolerant,\v!verytolerant}%
+		{\getvalue{dialogtolerance:\dialogtoleranceparameter}}%
+		{\let\currentdialogtolerance\dialogtoleranceparameter}%
+}
+
+\def\installspeaker{%
+	\edef\dialogspeakerparameter{\dialogparameter\c!speaker}%
+	\ifx\dialogspeakerparameter\empty
+		\edef\currentspeaker{\labeltext{anonymous}}%
+	\else
+		\ifcsname character:\dialogspeakerparameter\endcsname
+			\edef\speakercueparameter{%
+				\namedcharacterparameter[\dialogspeakerparameter]\c!cue
+			}%
+			\ifx\speakercueparameter\empty
+				\edef\currentspeaker{\csname\dialogspeakerparameter \c!name\endcsname}%
+			\else
+				\let\currentspeaker\speakercueparameter
+			\fi
+		\else
+			\let\currentspeaker\dialogspeakerparameter
+		\fi
+	\fi
+}
+
+\def\installspeakerextension{%
+	\edef\dialogextensionparameter{\dialogparameter\c!extension}%
+	\let\currentspeakerextension\empty
+	\ifx\dialogextensionparameter\empty\else
+		\edef\currentspeakerextension{~(\trylabeltext{\dialogextensionparameter})}%
+	\fi
+}
+
+\def\installdialogoffsetmethod#1{%
+	\expandafter\def\csname installdialog#1offset\endcsname{%
+		\expandafter\edef\csname dialog#1parameter\endcsname
+			{\dialogparameter{#1}}%
+		\ifsplitmode
+			\expandafter\edef\csname dialogsplit#1parameter\endcsname
+				{\dialogparameter{\c!split#1}}%
+			\expandafter\ifx\csname dialogsplit#1parameter\endcsname\empty
+				\expandafter\edef\csname currentdialog#1offset\endcsname
+					{\csname dialog#1parameter\endcsname}%
+			\else
+				\expandafter\edef\csname currentdialog#1offset\endcsname
+					{\csname dialogsplit#1parameter\endcsname}%
+			\fi
+		\else
+			\expandafter\edef\csname currentdialog#1offset\endcsname
+				{\csname dialog#1parameter\endcsname}%
+		\fi
+	}%
+}
+
+\installdialogoffsetmethod\c!cue
+\installdialogoffsetmethod\c!parenthetical
+\installdialogoffsetmethod\c!left
+\installdialogoffsetmethod\c!right
+
+\def\startdialog{\dodoubleempty\dostartdialog}
+
+\def\dostartdialog[#1][#2]{%
+	\begingroup
+	\settrue\dialogmode
+	\getparameters[dialog:][\c!speaker=\empty, \c!extension=\empty, #1, #2]%
+	\installspeaker
+	\installspeakerextension
+	\installdialogtolerance
+	\installdialogcueoffset
+	\installdialogparentheticaloffset
+	\installdialogleftoffset
+	\installdialogrightoffset
+	\let\.\periodcontinue
+	\let\!\exclaimcontinue
+	\let\?\questioncontinue
+	\let\-\dashcontinue
+	\let\,\commacontinue
+	\let\;\semicoloncontinue
+	\let\:\coloncontinue
+	\let\(\doparenthetical
+	\cueoffset\dimexpr
+		\currentdialogcueoffset + \currentdialogleftoffset
+	\relax
+	\dialogparameter\c!before
+	\the\everybeforedialog
+	\advance\leftskip\currentdialogleftoffset
+	\advance\rightskip\currentdialogrightoffset
+	% \vfil\penalty\zerocount\vfilneg
+	\testpage[\currentdialogtolerance]%
+	\cue{\currentspeaker\currentspeakerextension}%
+	\triggerpagebuilder
+	\setbox\dialogbox\hbox\bgroup
+	\dialogparameter\c!style
+	\ignorespaces
+}
+
+\def\continue{%
+	\ifdialogmode
+		\egroup
+		\docheckcontinue
+		\setbox\continuebox\hbox\bgroup
+		\dialogparameter\c!style
+	\fi
+	\ignorespaces
+}
+
+\def\periodcontinue{.\continue}
+\def\exclaimcontinue{!\continue}
+\def\questioncontinue{?\continue}
+\def\dashcontinue{-\continue}
+\def\commacontinue{,\continue}
+\def\semicoloncontinue{;\continue}
+\def\coloncontinue{:\continue}
+
+\def\docheckcontinue{%
+	\let\spacer\empty
+	\ifdim\ht\dialogbox > \zeropoint
+		\ifdim\ht\continuebox > \zeropoint
+			\docontinuation
+			\unless\ifvoid\dialogbox
+				\let\spacer\space
+			\fi
+		\fi
+	\fi
+	\ifdim\ht\parentheticalbox > \zeropoint
+		\ifdim\ht\dialogbox > \zeropoint
+			\vpar{\unhbox\dialogbox}%
+		\fi
+		\setbox\scratchbox\vbox{\unhcopy\parentheticalbox}%
+		\vpar{%
+			\advance\leftskip\currentdialogparentheticaloffset
+			(\unhbox\parentheticalbox)%
+		}%
+		\setbox\dialogbox\box\continuebox
+	\else
+		\setbox\dialogbox\hbox{%
+			\unhbox\dialogbox
+			\spacer
+			\unhbox\continuebox
+		}%
+	\fi
+}
+
+\def\docontinuation{%
+	\ifdim\pagegoal < \maxdimen
+		\setbox\scratchbox\vbox{%
+			\unhcopy\dialogbox
+			\cue{(\labeltext{more})}%
+		}%
+		\ifdim
+			\dimexpr
+				\pagetotal
+					+ \htdp\scratchbox
+					- \pageshrink
+			\relax < \pagegoal
+		\relax
+			\ifdim
+				\dimexpr
+					\currentdialogtolerance\lineheight
+						+ \pagetotal
+						+ \htdp\scratchbox
+						\ifdim\lastskip < \parskip
+							+ \parskip
+						\fi
+				\relax > \pagegoal
+			\relax
+				\vpar{%
+					\unhbox\dialogbox
+					\cue{(\labeltext{more})}%
+				}%
+				\penalty-\plustenthousand
+				\cue{\currentspeaker~(\labeltext{continued})}%
+			\fi
+		\fi
+	\fi
+}
+
+\def\startparenthetical{%
+	\ifdialogmode
+		\egroup
+		\docheckcontinue
+		\setbox\parentheticalbox\hbox\bgroup
+		\dialogparameter\c!parentheticalstyle
+	\fi
+	\ignorespaces
+}
+
+\def\stopparenthetical{%
+	\ifdialogmode
+		\egroup
+		\setbox\continuebox\hbox\bgroup
+		\dialogparameter\c!style
+	\fi
+	\ignorespaces
+}
+
+\def\doparenthetical#1){%
+	\startparenthetical#1\stopparenthetical
+	\ignorespaces
+}
+
+\def\stopdialog{%
+	\egroup
+	\docheckcontinue
+	\ifdim\ht\dialogbox > \zeropoint
+		\vpar{\unhbox\dialogbox}%
+	\else
+		\vfil\penalty-\plustwohundred\vfilneg
+	\fi
+	\dialogparameter\c!after
+	\the\everyafterdialog
+	\endgroup
+}
+
+\newtoks\everybeforedraft
+\newtoks\everyafterdraft
+
+\def\draftparameter#1{\getvalue{draft:#1}}
+\def\dosetupdraft[#1]{\getparameters[draft:][#1]}
+\def\setupdraft{\dosingleempty\dosetupdraft}
+
+\setupdraft[
+	\c!color=middlered,
+	\c!before=\relax,
+	\c!after=\relax,
+]
+
+\def\startdraft{\dosingleempty\dostartdraft}
+
+\def\dostartdraft[#1]{%
+	\setbox\scratchbox\vbox\bgroup
+	\iffirstargument
+		\startcolor[#1]%
+	\else
+		\startcolor[\draftparameter\c!color]%
+	\fi
+}
+
+\def\stopdraft{%
+	\stopcolor
+	\egroup
+	\doifnotmode{final}{%
+		\draftparameter\c!before
+		\the\everybeforedraft
+		\box\scratchbox
+		\draftparameter\c!after
+		\the\everyafterdraft
+	}%
+}
+
+\protect
+
+\stopenvironment

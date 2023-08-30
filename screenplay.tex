@@ -1,0 +1,279 @@
+\startenvironment screenplay
+\environment drama
+
+\unprotect
+
+\setupdialog[
+	cue=1in,
+	parenthetical=0.5in,
+	left=1in,
+	right=1.5in,
+]
+
+\setupcharacters[
+	introductions=yes,
+	introductionstyle=\WORD,
+]
+
+\setuplabeltext[
+	int={Int.},
+	interior={Int.},
+	ext={Ext.},
+	exterior={Ext.},
+	intandext={Int./Ext.},
+	interiorandexterior={Int./Ext.},
+	dawn={Dawn},
+	sunrise={Sunrise},
+	morning={Morning},
+	day={Day},
+	noon={Noon},
+	afternoon={Afternoon},
+	evening={Evening},
+	sunset={Sunset},
+	night={Night},
+	continuous={Continuous},
+	momentslater={Moments~Later},
+	later={Later},
+	bw={B\&W},
+	blackandwhite={Black~\&~White},
+	voiceover={V.O.},
+	offscreen={O.S.},
+	offcamera={O.C.},
+	cut={Cut~To},
+	cuttoblack={Cut~To~Black},
+	insertcut={Insert~Cut},
+	closeon={Close~On},
+	closein={Close~In},
+	closeup={Close~Up~On},
+	fade={Fade~To},
+	fadetoblack={Fade~To~Black},
+	fadein={Fade~In},
+	fadeout={Fade~Out},
+	irisin={Iris~In},
+	irisout={Iris~Out},
+	dissolve={Dissolve~To},
+	matchcut={Match~Cut~To},
+	jumpcut={Jump~Cut~To},
+	wipe={Wipe~To},
+	smashcut={Smash~Cut~To},
+	freezeframe={Freeze~Frame},
+	credits={Credits}%
+]
+
+\definemargindata[inleftmiddle][left][
+	margin=margin,
+	width=\leftmarginwidth,
+	style=\empty,
+	color=\empty,
+	align=middle,
+]
+
+\def\slugparameter#1{\getvalue{slug:#1}}
+\def\setslugparameter#1{\setvalue{slug:#1}}
+\def\setupslug{\getparameters[slug:]}
+
+\defineinterfaceconstant{timeseparator}{\c!time\c!separator}
+\defineinterfaceconstant{placeseparator}{place\c!separator}
+
+\setupslug[
+	\c!style=\tf\WORD,
+	\c!textstyle=\empty,
+	\c!prefix=\empty,
+	\c!time=\empty,
+	\c!extension=\empty,
+	\c!timeseparator={--},
+	\c!placeseparator={\unskip,},
+	\c!hidenumber=\v!no,
+	\c!numbercommand=\slugnumbercommand,
+	\c!before={\blank[2*white]},
+	\c!after=\relax,
+]
+
+\definehead[slugline][section][
+	style=\slugparameter{style},
+	textstyle=\slugparameter{textstyle},
+	prefix=\slugparameter{prefix},
+	hidenumber=\slugparameter\c!hidenumber,
+	distance=\zeropoint,
+	textdistance=\zeropoint,
+	numbercommand=\slugparameter\c!numbercommand,
+	before={%
+		\testpage[3]%
+		\slugparameter\c!before
+	},
+	after=\slugparameter\c!after,
+]
+
+\def\installslugtime{%
+	\edef\slugtimeparameter{\slugparameter\c!time}%
+	\let\currentslugtime\empty
+	\ifx\slugtimeparameter\empty\else
+		\edef\currentslugtime{%
+			\space
+			\slugparameter{\c!timeseparator}%
+			~%
+			\trylabeltext{\slugtimeparameter}%
+		}%
+	\fi
+}
+
+\def\installslugextension{%
+	\edef\slugextensionparameter{\slugparameter\c!extension}%
+	\let\currentslugextension\empty
+	\ifx\slugextensionparameter\empty\else
+		\edef\currentslugextension{%
+			~(\trylabeltext{\slugextensionparameter})%
+		}%
+	\fi
+}
+
+\def\slugnumbercommand#1{%
+	\doifnot{\headparameter\c!hidenumber}{\v!yes}{%
+		\inleftmiddle{\headparameter\c!style #1}%
+		\inrightmargin{\space\headparameter\c!style #1}%
+	}%
+}
+
+\def\slug{\dotripleempty\doslug}
+\def\interior{\slug[int]}
+\def\exterior{\slug[ext]}
+
+\def\doslug[#1][#2][#3]{%
+	\begingroup
+	\checkparameters[#1]
+	\ifparameters
+		\getparameters[slug:][#1, #2, #3]%
+	\else
+		\checkparameters[#2]%
+		\ifparameters
+			\getparameters[slug:][#2, #3]%
+		\else
+			\getparameters[slug:][#3]%
+			\setslugparameter{time}{#2}%
+		\fi
+		\setslugparameter{prefix}{#1}%
+	\fi
+	\installslugtime
+	\installslugextension
+	\dodoublegroupempty\doslugtitle
+}
+
+\def\doslugtitle#1#2{
+	\ifsecondargument
+		\slugline{%
+			#1%
+			\space
+			\slugparameter{placeseparator}%
+			~%
+			#2%
+			\currentslugtime
+			\currentslugextension
+		}%
+	\else
+		\slugline{#1\currentslugtime\currentslugextension}%
+	\fi
+	\endgroup
+}
+
+\def\cutsparameter#1{\getvalue{cuts:#1}}
+\def\setupcuts{\getparameters[cuts:]}
+
+\setupcuts[
+	\c!style=\tf\WORD,
+	\c!separator=:,
+	\c!textdistance=\emwidth,
+]
+
+\newtoks\everydefinecut
+
+\def\definecut{\dodoubleempty\dodefinecut}
+
+\def\dodefinecut[#1][#2]{%
+	\getparameters[#1][label=#1, #2]%
+	\edef\currentcut{#1}%
+	\definehead[#1head][subject][
+		style=\cutsparameter\c!style,
+		prefix=\csname#1label\endcsname,
+		separator=\cutsparameter\c!separator,
+		textdistance=\cutsparameter\c!textdistance,
+		alternative=text,
+		textcommand=%
+			\advance\leftskip\getheadoffset
+			\getheadprefix\unskip
+			\headparameter\c!separator
+			\firstofoneargument,
+		#2,
+	]%
+	\expandafter\def\csname #1\endcsname
+		{\csname #1head\endcsname\ignorespaces}%
+	\expandafter\def\csname start#1\endcsname
+		{\csname start#1head\endcsname\ignorespaces}%
+	\expandafter\def\csname stop#1\endcsname
+		{\csname stop#1head\endcsname\ignorespaces}%
+	\expandafter\def\csname setup#1\endcsname
+		{\csname setup#1head\endcsname}%
+	\the\everydefinecut
+}
+
+\definecut[insertcut]
+\definecut[closeon]
+\definecut[closein]
+\definecut[closeup]
+\definecut[credits][separator=.]
+\definecut[theend][label=end, separator=.]
+
+\def\transitionsparameter#1{\getvalue{transitions:#1}}
+\def\setuptransitions{\getparameters[transitions:]}
+
+\setuptransitions[
+	\c!style=\tf\WORD,
+	\c!separator=:,
+]
+
+\newtoks\everydefinetransition
+
+\def\definetransition{\dodoubleempty\dodefinetransition}
+
+\def\dodefinetransition[#1][#2]{%
+	\getparameters[#1][label=#1, #2]%
+	\edef\currenttransition{#1}%
+	\definehead[#1head][subject][
+		style=\transitionsparameter\c!style,
+		prefix=\csname#1label\endcsname,
+		separator=\transitionsparameter\c!separator,
+		textdistance=\zeropoint,
+		textcommand=%
+			\hfill\getheadprefix\unskip
+			\headparameter\c!separator
+			\gobbleoneargument,
+		#2,
+	]%
+	\expandafter\def\csname #1\endcsname
+		{\csname #1head\endcsname\ignorespaces}%
+	\expandafter\def\csname start#1\endcsname
+		{\csname start#1head\endcsname\ignorespaces}%
+	\expandafter\def\csname stop#1\endcsname
+		{\csname stop#1head\endcsname\ignorespaces}%
+	\expandafter\def\csname setup#1\endcsname
+		{\csname setup#1head\endcsname}%
+	\the\everydefinetransition
+}
+
+\definetransition[cut]
+\definetransition[cuttoblack][separator=.]
+\definetransition[fade]
+\definetransition[fadetoblack][separator=.]
+\definetransition[fadein]
+\definetransition[fadeout]
+\definetransition[dissolve]
+\definetransition[matchcut]
+\definetransition[irisin]
+\definetransition[irisout]
+\definetransition[jumpcut]
+\definetransition[wipe]
+\definetransition[smashcut]
+\definetransition[freezeframe][separator=.]
+
+\protect
+
+\stopenvironment
