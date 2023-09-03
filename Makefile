@@ -11,7 +11,7 @@ outdir:
 	if [ ! -d $(OUTDIR) ]; then mkdir $(OUTDIR); fi
 
 clean:
-	rm -f $(OUTDIR)
+	rm -rf $(OUTDIR)
 
 $(products): %.pdf: %.tex outdir
 	cd $(OUTDIR); \
