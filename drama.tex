@@ -29,7 +29,6 @@
 	top=\vfill,
 	bottom=\vfill,
 	align=middle,
-	footerstate=start,
 ]
 
 \setuplayout[coverpage][
@@ -53,6 +52,7 @@
 
 \definemode[final][keep]
 
+\defineinterfaceconstant{character}{character}
 \defineinterfaceconstant{introduce}{introduce}
 \defineinterfaceconstant{introduction}{introduction}
 \defineinterfaceconstant{introductions}{introductions}
@@ -140,7 +140,7 @@
 }
 
 \setuphead[title][
-	page=yes,
+	page=no,
 	style=\tf\bf\WORD,
 	align=middle,
 	textstyle=normal,
@@ -316,7 +316,7 @@
 	rulethickness=\zeropoint,
 	distance=1.5\bodyfontsize,
 	inner=\settrue\splitmode\the\everyinnersplit,
-	before=\kern\strutdp,
+	before=\ifvmode\kern\strutdp\fi,
 	after=\relax,
 ]
 

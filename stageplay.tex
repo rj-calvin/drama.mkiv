@@ -64,6 +64,84 @@
 \actoffset2in
 \sceneoffset2in
 
+\definelist[cast][criterium=local, alternative=f, interaction=none]
+\def\castlist{\placelist[cast]}
+
+\def\castpageparameter#1{\getvalue{castpage:#1}}
+\def\setupcastpage{\dodoubleempty\getparameters[castpage:]}
+
+\defineinterfaceconstant{characterstyle}{\c!character\c!style}
+\defineinterfaceconstant{description}{description}
+\defineinterfaceconstant{descriptionstyle}{\c!description\c!style}
+
+\setupcastpage[
+  \c!characterstyle=\tf\WORD,
+  \c!descriptionstyle=\tf,
+]
+
+\def\installcharacterdescription{%
+  \let\currentcharacterdescription\empty
+  \ifcsname\currentcharacter description\endcsname
+    \edef\currentcharacterdescription{%
+      \csname\currentcharacter description\endcsname
+    }%
+  \fi
+}
+
+\def\installcharactergender{%
+  \let\currentcharactergender\empty
+  \ifcsname\currentcharacter gender\endcsname
+    \edef\currentcharactergender{%
+      (\csname\currentcharacter gender\endcsname)\space
+    }%
+  \fi
+}
+
+\appendtoks
+  \installcharacterdescription
+  \installcharactergender
+  \doflushatpar{%
+    \dontleavehmode
+    \writetolist[cast]{}{%
+      \setupsplit[1][width=\dimexpr 1.5in - \emwidth\relax]%
+      \startsplit
+      \castpageparameter\c!characterstyle\currentcharactername
+      \split
+      \castpageparameter\c!descriptionstyle
+      \currentcharactergender\currentcharacterdescription
+      \stopsplit
+    }%
+  }%
+\to \everydefinecharacter
+
+\startsetups[doc:castpage]
+  \setuphead[title][
+    style=\tf\WORD,
+    after=\leavevmode\blank,
+  ]
+  \setuphead[subject][
+    style=\tf\WORD,
+    before={\blank[line]},
+    after={\blank},
+  ]
+  \setuphead[subsubject][
+    style=\tf\WORD,
+    alternative=text,
+    before={\blank[line]},
+    after={\blank[line]},
+  ]
+\stopsetups
+
+\definemakeup[castpage][
+  top=,
+  bottom=\vfill,
+  align=flushleft,
+  setups=doc:castpage,
+]
+
+\let\startcastpage\startcastpagemakeup
+\let\stopcastpage\stopcastpagemakeup
+
 \def\installalternative#1#2{%
   \expandafter\newconditional\csname #1#2mode\endcsname
   \expandafter\def\csname if#1#2mode\endcsname{%
