@@ -360,10 +360,6 @@
 \newconditional\dialogmode
 \def\ifdialogmode{\ifconditional\dialogmode}
 
-\newbox\dialogbox
-\newbox\continuebox
-\newbox\parentheticalbox
-
 \def\dialogparameter#1{\getvalue{dialog:#1}}
 \def\dosetupdialog[#1]{\getparameters[dialog:][#1]}
 \def\setupdialog{\dosingleempty\dosetupdialog}
@@ -471,11 +467,22 @@
 \installdialogoffsetmethod\c!left
 \installdialogoffsetmethod\c!right
 
+\newbox\dialogbox
+\newbox\continuebox
+\newbox\parentheticalbox
+
+\newcount\dialogstate
+\chardef\dialogneedscue=0
+\chardef\dialoghasleadingparenthetical=1
+\chardef\dialoghastext=2
+\chardef\dialoghasparenthetical=3
+
 \def\startdialog{\dodoubleempty\dostartdialog}
 
 \def\dostartdialog[#1][#2]{%
 	\begingroup
 	\settrue\dialogmode
+	\dialogstate\dialogneedscue
 	\getparameters[dialog:][\c!speaker=\empty, \c!extension=\empty, #1, #2]%
 	\installspeaker
 	\installspeakerextension
@@ -499,22 +506,288 @@
 	\the\everybeforedialog
 	\advance\leftskip\currentdialogleftoffset
 	\advance\rightskip\currentdialogrightoffset
-	% \vfil\penalty\zerocount\vfilneg
-	\testpage[\currentdialogtolerance]%
-	\cue{\currentspeaker\currentspeakerextension}%
-	\triggerpagebuilder
+	\vfil\vfilneg
 	\setbox\dialogbox\hbox\bgroup
 	\dialogparameter\c!style
 	\ignorespaces
 }
 
+\def\dialog_print_parenthetical{%
+	\vpar{%
+		\advance\leftskip\currentdialogparentheticaloffset
+		(\unhbox\parentheticalbox)%
+	}%
+}
+
+\def\dialog_copy_parenthetical{%
+	\vpar{%
+		\advance\leftskip\currentdialogparentheticaloffset
+		(\unhcopy\parentheticalbox)%
+	}%
+}
+
+\def\dialog_print_text{\vpar{\unhbox\dialogbox}}
+\def\dialog_copy_text{\vpar{\unhcopy\dialogbox}}
+\def\dialog_copy_continue_text{\vpar{\unhcopy\continuebox}}
+
+\def\dialog_copy_concat_text{%
+	\vpar{\unhcopy\dialogbox\space\unhcopy\continuebox}%
+}
+
+\def\dialog_concat_text{%
+	\setbox\dialogbox\hbox{\unhbox\dialogbox\space\unhbox\continuebox}%
+}
+
+\def\dialog_print_cue{\cue{\currentspeaker\currentspeakerextension}}
+\def\dialog_print_more{\cue{(\labeltext{more})}}
+\def\dialog_print_continued{\cue{\currentspeaker~(\labeltext{continued})}}
+
+\newconditional\dialog_check_snug
+\newconditional\dialog_check_fit
+
+\def\dialog_check_page{%
+	\setfalse\dialog_check_fit
+	\setfalse\dialog_check_snug
+	\ifdim
+		\dimexpr
+			\pagetotal
+				+ \htdp\scratchbox
+				- \pageshrink
+		\relax < \pagegoal
+	\relax
+		\settrue\dialog_check_fit
+		\ifdim
+			\dimexpr
+				\currentdialogtolerance\lineheight
+					+ \pagetotal
+					+ \htdp\scratchbox
+					\ifdim\lastskip < \parskip
+						+ \parskip
+					\fi
+			\relax > \pagegoal
+		\relax
+			\settrue\dialog_check_snug
+		\fi
+	\fi
+}
+
+\def\dialog_flush{%
+	\synchronizeoutput
+	\ifcase\dialogstate % needs cue
+		\setbox\scratchbox\vbox{%
+			\dialog_print_cue
+			\dialog_copy_text
+			\dialog_print_more
+		}%
+		\dialog_check_page
+		\ifconditional\dialog_check_fit\else
+			\penalty-\plustenthousand
+		\fi
+		\dialog_print_cue
+	\or % leading parenthetical
+		\setbox\scratchbox\vbox{%
+			\dialog_print_cue
+			\dialog_copy_parenthetical
+			\dialog_copy_text
+			\dialog_print_more
+		}%
+		\dialog_check_page
+		\ifconditional\dialog_check_fit\else
+			\penalty-\plustenthousand
+		\fi
+		\dialog_print_cue
+		\dialog_print_parenthetical
+	\or % has text
+		\setbox\scratchbox\vbox{%
+			\dialog_copy_text
+			\dialog_print_more
+		}%
+		\dialog_check_page
+		\ifconditional\dialog_check_fit
+			\ifconditional\dialog_check_snug
+				\dialog_print_text
+				\dialog_print_more
+				\penalty-\plustenthousand
+				\dialog_print_continued
+				\setbox\dialogbox\box\continuebox
+			\else
+				\setbox\scratchbox\vbox{%
+					\dialog_copy_concat_text
+					\dialog_print_more
+				}%
+				\dialog_check_page
+				\ifconditional\dialog_check_fit
+					\dialog_concat_text
+				\else
+					\dialog_print_text
+					\dialog_print_more
+					\penalty-\plustenthousand
+					\dialog_print_continued
+					\setbox\dialogbox\box\continuebox
+				\fi
+			\fi
+		\else
+			\message{%
+				Dialog overflow!
+				Use continuation markers to break up blocks of dialog.%
+			}%
+			\dialog_print_text
+			\setbox\dialogbox\box\continuebox
+		\fi
+	\or % has parenthetical
+		\setbox\scratchbox\vbox{%
+			\dialog_copy_text
+			\dialog_print_more
+		}%
+		\dialog_check_page
+		\ifconditional\dialog_check_fit
+			\ifconditional\dialog_check_snug
+				\dialog_print_text
+				\dialog_print_more
+				\penalty-\plustenthousand
+				\dialog_print_continued
+				\dialog_print_parenthetical
+				\setbox\dialogbox\box\continuebox
+			\else
+				\setbox\scratchbox\vbox{%
+					\dialog_copy_text
+					\dialog_copy_parenthetical
+					\dialog_copy_continue_text
+					\dialog_print_more
+				}%
+				\dialog_check_page
+				\ifconditional\dialog_check_fit
+					\dialog_print_text
+					\dialog_print_parenthetical
+					\setbox\dialogbox\box\continuebox
+				\else
+					\dialog_print_text
+					\dialog_print_more
+					\penalty-\plustenthousand
+					\dialog_print_continued
+					\dialog_print_parenthetical
+					\setbox\dialogbox\box\continuebox
+				\fi
+			\fi
+		\else
+			\message{%
+				Dialog overflow!
+				Use continuation markers to break up blocks of dialog.%
+			}%
+			\dialog_print_text
+			\dialog_print_parenthetical
+			\setbox\dialogbox\box\continuebox
+		\fi
+	\fi
+}
+
 \def\continue{%
 	\ifdialogmode
 		\egroup
-		\docheckcontinue
-		\setbox\continuebox\hbox\bgroup
+		\ifdim\ht\dialogbox > \zeropoint
+			\ifnum\dialogstate < \dialoghastext
+				\dialog_flush
+				\dialogstate\dialoghastext
+			\else
+				\ifdim\ht\continuebox > \zeropoint
+					\dialog_flush
+					\dialogstate\dialoghastext
+				\fi
+			\fi
+			\setbox\continuebox\hbox\bgroup
+		\else
+			\setbox\dialogbox\hbox\bgroup
+		\fi
 		\dialogparameter\c!style
 	\fi
+	\ignorespaces
+}
+
+\def\startparenthetical{%
+	\ifdialogmode
+		\egroup
+		\ifdim\ht\dialogbox > \zeropoint
+			\ifnum\dialogstate < \dialoghastext
+				\dialog_flush
+			\else
+				\ifdim\ht\continuebox > \zeropoint
+					\dialog_flush
+				\fi
+			\fi
+			\dialogstate\dialoghasparenthetical
+		\else
+			\dialogstate\dialoghasleadingparenthetical
+		\fi
+		\setbox\parentheticalbox\hbox\bgroup
+		\dialogparameter\c!parentheticalstyle
+		\ifdim\ht\parentheticalbox > \zeropoint
+			\unhbox\parentheticalbox
+			\space
+		\fi
+	\fi
+	\ignorespaces
+}
+
+\def\stopparenthetical{%
+	\ifdialogmode
+		\egroup
+		\ifnum\dialogstate = \dialoghasparenthetical
+			\setbox\continuebox\hbox\bgroup
+		\else
+			\setbox\dialogbox\hbox\bgroup
+		\fi
+		\dialogparameter\c!style
+	\fi
+	\ignorespaces
+}
+
+\def\stopdialog{%
+	\egroup
+	\ifdim\ht\dialogbox > \zeropoint
+		\ifnum\dialogstate < \dialoghastext
+			\dialog_flush
+			\vpar{\unhbox\dialogbox}%
+		\else
+			\ifdim\ht\continuebox > \zeropoint
+				\dialog_flush
+				\vpar{\unhbox\dialogbox}%
+			\else
+				\ifnum\dialogstate = \dialoghasparenthetical
+					% trailing parenthetical
+					\setbox\scratchbox\vbox{%
+						\vpar{\unhcopy\dialogbox}%
+						\dialog_copy_parenthetical
+					}%
+					\dialog_check_page
+					\ifconditional\dialog_check_fit
+						\vpar{\unhbox\dialogbox}%
+						\dialog_print_parenthetical
+					\else
+						% ?
+					\fi
+				\fi
+			\fi
+		\fi
+	\else
+		% empty dialog
+		\ifnum\dialogstate = \dialogneedscue
+			\cue{\currentspeaker\currentspeakerextension}%
+		\else
+			\testpage[3]%
+			\cue{\currentspeaker\currentspeakerextension}%
+			\vpar{%
+				\advance\leftskip\currentdialogparentheticaloffset
+				(\unhbox\parentheticalbox)%
+			}%
+		\fi
+	\fi
+	\dialogparameter\c!after
+	\the\everyafterdialog
+	\endgroup
+}
+
+\def\doparenthetical#1){%
+	\startparenthetical#1\stopparenthetical
 	\ignorespaces
 }
 
@@ -525,105 +798,6 @@
 \def\commacontinue{,\continue}
 \def\semicoloncontinue{;\continue}
 \def\coloncontinue{:\continue}
-
-\def\docheckcontinue{%
-	\let\spacer\empty
-	\ifdim\ht\dialogbox > \zeropoint
-		\ifdim\ht\continuebox > \zeropoint
-			\docontinuation
-			\unless\ifvoid\dialogbox
-				\let\spacer\space
-			\fi
-		\fi
-	\fi
-	\ifdim\ht\parentheticalbox > \zeropoint
-		\ifdim\ht\dialogbox > \zeropoint
-			\vpar{\unhbox\dialogbox}%
-		\fi
-		\vpar{%
-			\advance\leftskip\currentdialogparentheticaloffset
-			(\unhbox\parentheticalbox)%
-		}%
-		\setbox\dialogbox\box\continuebox
-	\else
-		\setbox\dialogbox\hbox{%
-			\unhbox\dialogbox
-			\spacer
-			\unhbox\continuebox
-		}%
-	\fi
-}
-
-\def\docontinuation{%
-	\ifdim\pagegoal < \maxdimen
-		\setbox\scratchbox\vbox{%
-			\unhcopy\dialogbox
-			\cue{(\labeltext{more})}%
-		}%
-		\ifdim
-			\dimexpr
-				\pagetotal
-					+ \htdp\scratchbox
-					- \pageshrink
-			\relax < \pagegoal
-		\relax
-			\ifdim
-				\dimexpr
-					\currentdialogtolerance\lineheight
-						+ \pagetotal
-						+ \htdp\scratchbox
-						\ifdim\lastskip < \parskip
-							+ \parskip
-						\fi
-				\relax > \pagegoal
-			\relax
-				\vpar{%
-					\unhbox\dialogbox
-					\cue{(\labeltext{more})}%
-				}%
-				\penalty-\plustenthousand
-				\cue{\currentspeaker~(\labeltext{continued})}%
-			\fi
-		\fi
-	\fi
-}
-
-\def\startparenthetical{%
-	\ifdialogmode
-		\egroup
-		\docheckcontinue
-		\setbox\parentheticalbox\hbox\bgroup
-		\dialogparameter\c!parentheticalstyle
-	\fi
-	\ignorespaces
-}
-
-\def\stopparenthetical{%
-	\ifdialogmode
-		\egroup
-		\setbox\continuebox\hbox\bgroup
-		\dialogparameter\c!style
-	\fi
-	\ignorespaces
-}
-
-\def\doparenthetical#1){%
-	\startparenthetical#1\stopparenthetical
-	\ignorespaces
-}
-
-\def\stopdialog{%
-	\egroup
-	\docheckcontinue
-	\ifdim\ht\dialogbox > \zeropoint
-		\vpar{\unhbox\dialogbox}%
-	\else
-		\vfil\penalty-\plustwohundred\vfilneg
-	\fi
-	\dialogparameter\c!after
-	\the\everyafterdialog
-	\endgroup
-}
 
 \newtoks\everybeforedraft
 \newtoks\everyafterdraft
@@ -647,6 +821,8 @@
 	\else
 		\startcolor[\draftparameter\c!color]%
 	\fi
+	\setupdialog[tolerance=never]%
+	\ignorespaces
 }
 
 \def\stopdraft{%
@@ -659,6 +835,7 @@
 		\draftparameter\c!after
 		\the\everyafterdraft
 	}%
+	\ignorespaces
 }
 
 \protect
