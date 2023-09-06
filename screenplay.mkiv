@@ -70,7 +70,7 @@
 
 \def\slugparameter#1{\getvalue{slug:#1}}
 \def\setslugparameter#1{\setvalue{slug:#1}}
-\def\setupslug{\getparameters[slug:]}
+\def\setupslug{\dodoubleempty\getparameters[slug:]}
 
 \defineinterfaceconstant{timeseparator}{\c!time\c!separator}
 \defineinterfaceconstant{placeseparator}{place\c!separator}
@@ -84,10 +84,17 @@
 	\c!timeseparator={--},
 	\c!placeseparator={\unskip,},
 	\c!hidenumber=\v!no,
-	\c!numbercommand=\slugnumbercommand,
+	\c!numbercommand=\slug_number_command,
 	\c!before={\blank[2*white]},
 	\c!after=\relax,
 ]
+
+\def\slug_number_command#1{%
+	\doifnot{\headparameter\c!hidenumber}{\v!yes}{%
+		\inleftmiddle{\headparameter\c!style #1}%
+		\inrightmargin{\space\headparameter\c!style #1}%
+	}%
+}
 
 \definehead[slugline][section][
 	style=\slugparameter{style},
@@ -104,7 +111,7 @@
 	after=\slugparameter\c!after,
 ]
 
-\def\installslugtime{%
+\def\install_slug_time{%
 	\edef\slugtimeparameter{\slugparameter\c!time}%
 	\let\currentslugtime\empty
 	\ifx\slugtimeparameter\empty\else
@@ -117,7 +124,7 @@
 	\fi
 }
 
-\def\installslugextension{%
+\def\install_slug_extension{%
 	\edef\slugextensionparameter{\slugparameter\c!extension}%
 	\let\currentslugextension\empty
 	\ifx\slugextensionparameter\empty\else
@@ -127,18 +134,11 @@
 	\fi
 }
 
-\def\slugnumbercommand#1{%
-	\doifnot{\headparameter\c!hidenumber}{\v!yes}{%
-		\inleftmiddle{\headparameter\c!style #1}%
-		\inrightmargin{\space\headparameter\c!style #1}%
-	}%
-}
-
-\def\slug{\dotripleempty\doslug}
+\def\slug{\dotripleempty\drama_print_slug}
 \def\interior{\slug[int]}
 \def\exterior{\slug[ext]}
 
-\def\doslug[#1][#2][#3]{%
+\def\drama_print_slug[#1][#2][#3]{%
 	\begingroup
 	\checkparameters[#1]
 	\ifparameters
@@ -153,12 +153,12 @@
 		\fi
 		\setslugparameter{prefix}{#1}%
 	\fi
-	\installslugtime
-	\installslugextension
-	\dodoublegroupempty\doslugtitle
+	\install_slug_time
+	\install_slug_extension
+	\dodoublegroupempty\drama_print_slug_next
 }
 
-\def\doslugtitle#1#2{
+\def\drama_print_slug_next#1#2{
 	\ifsecondargument
 		\slugline{%
 			#1%
@@ -176,7 +176,7 @@
 }
 
 \def\cutsparameter#1{\getvalue{cuts:#1}}
-\def\setupcuts{\getparameters[cuts:]}
+\def\setupcuts{\dodoubleempty\getparameters[cuts:]}
 
 \setupcuts[
 	\c!style=\tf\WORD,
@@ -186,9 +186,9 @@
 
 \newtoks\everydefinecut
 
-\def\definecut{\dodoubleempty\dodefinecut}
+\def\definecut{\dodoubleempty\drama_define_cut}
 
-\def\dodefinecut[#1][#2]{%
+\def\drama_define_cut[#1][#2]{%
 	\getparameters[#1][label=#1, #2]%
 	\edef\currentcut{#1}%
 	\definehead[#1head][subject][
@@ -223,7 +223,7 @@
 \definecut[theend][label=end, separator=.]
 
 \def\transitionsparameter#1{\getvalue{transitions:#1}}
-\def\setuptransitions{\getparameters[transitions:]}
+\def\setuptransitions{\dodoubleempty\getparameters[transitions:]}
 
 \setuptransitions[
 	\c!style=\tf\WORD,
@@ -232,9 +232,9 @@
 
 \newtoks\everydefinetransition
 
-\def\definetransition{\dodoubleempty\dodefinetransition}
+\def\definetransition{\dodoubleempty\drama_define_transition}
 
-\def\dodefinetransition[#1][#2]{%
+\def\drama_define_transition[#1][#2]{%
 	\getparameters[#1][label=#1, #2]%
 	\edef\currenttransition{#1}%
 	\definehead[#1head][subject][

@@ -34,13 +34,14 @@
   before={\testpage[3]},
 ]
 
-\def\act{\dosinglegroupempty\doact}
-\def\doact#1{\acthead{#1}\ignorespaces}
-\def\startact{\dosingleempty\dostartact}
-\def\dostartact[#1]{\startacthead[#1]\ignorespaces}
+\def\act{\dosinglegroupempty\drama_act}
+\def\startact{\dosingleempty\drama_start_act}
 \let\stopact\stopacthead
 \let\actoffset\actheadoffset
 \def\setupact{\setuphead[acthead]}
+
+\def\drama_act#1{\acthead{#1}\ignorespaces}
+\def\drama_start_act[#1]{\startacthead[#1]\ignorespaces}
 
 \definestructureseparatorset[sectionseparatorset][,-,][]
 \definestructureconversionset[sectionconversionset][,R,][]
@@ -53,13 +54,14 @@
   before={\testpage[3]},
 ]
 
-\def\scene{\dosinglegroupempty\doscene}
-\def\doscene#1{\scenehead{#1}\ignorespaces}
-\def\startscene{\dosingleempty\dostartscene}
-\def\dostartscene[#1]{\startscenehead[#1]\ignorespaces}
+\def\scene{\dosinglegroupempty\drama_scene}
+\def\startscene{\dosingleempty\drama_start_scene}
 \let\stopscene\stopscenehead
 \let\sceneoffset\sceneheadoffset
 \def\setupscene{\setuphead[scenehead]}
+
+\def\drama_scene#1{\scenehead{#1}\ignorespaces}
+\def\drama_start_scene[#1]{\startscenehead[#1]\ignorespaces}
 
 \actoffset2in
 \sceneoffset2in
@@ -79,7 +81,7 @@
   \c!descriptionstyle=\tf,
 ]
 
-\def\installcharacterdescription{%
+\def\install_character_description{%
   \let\currentcharacterdescription\empty
   \ifcsname\currentcharacter description\endcsname
     \edef\currentcharacterdescription{%
@@ -88,7 +90,7 @@
   \fi
 }
 
-\def\installcharactergender{%
+\def\install_character_gender{%
   \let\currentcharactergender\empty
   \ifcsname\currentcharacter gender\endcsname
     \edef\currentcharactergender{%
@@ -98,8 +100,8 @@
 }
 
 \appendtoks
-  \installcharacterdescription
-  \installcharactergender
+  \install_character_description
+  \install_character_gender
   \doflushatpar{%
     \dontleavehmode
     \writetolist[cast]{}{%
@@ -142,20 +144,20 @@
 \let\startcastpage\startcastpagemakeup
 \let\stopcastpage\stopcastpagemakeup
 
-\def\installalternative#1#2{%
+\def\install_alternative_method#1#2{%
   \expandafter\newconditional\csname #1#2mode\endcsname
   \expandafter\def\csname if#1#2mode\endcsname{%
     \expandafter\ifconditional\csname #1#2mode\endcsname
   }%
-  \expandafter\def\csname install#1#2mode\endcsname{
+  \expandafter\def\csname install_#1_#2_mode\endcsname{
     \doif{\csname #1parameter\endcsname\c!alternative}{#2}{%
       \expandafter\settrue\csname #1#2mode\endcsname
     }%
   }%
 }
 
-\def\installoffsetmethod#1#2{%
-  \expandafter\def\csname install#1#2offset\endcsname{%
+\def\install_offset_method#1#2{%
+  \expandafter\def\csname install_#1_#2_offset\endcsname{%
     \expandafter\edef\csname current#1#2offset\endcsname{%
       \csname#1parameter\endcsname{#2}%
     }%
@@ -165,18 +167,17 @@
 \defineinterfacevariable{parenthesis}{parenthesis}
 
 \def\stageparameter#1{\getvalue{stage:#1}}
-\def\dosetupstage[#1]{\getparameters[stage:][#1]}
-\def\setupstage{\dosingleempty\dosetupstage}
+\def\setupstage{\dodoubleempty\getparameters[stage:]}
 
 \newtoks\everybeforestage
 \newtoks\everyafterstage
 \newbox\stagebox
 
-\installalternative{stage}{\v!parenthesis}
-\installalternative{stage}{\v!text}
+\install_alternative_method{stage}{\v!parenthesis}
+\install_alternative_method{stage}{\v!text}
 
-\installoffsetmethod{stage}{\v!left}
-\installoffsetmethod{stage}{\v!right}
+\install_offset_method{stage}{\v!left}
+\install_offset_method{stage}{\v!right}
 
 \setupstage[
   \c!style=\empty,
@@ -186,15 +187,15 @@
   \c!before={\blank[white]},
 ]
 
-\def\startstage{\dosingleempty\dostartstage}
+\def\startstage{\dosingleempty\drama_start_stage}
 
-\def\dostartstage[#1]{%
+\def\drama_start_stage[#1]{%
   \begingroup
   \getparameters[stage:][#1]%
-  \installstageparenthesismode
-  \installstagetextmode
-  \installstageleftoffset
-  \installstagerightoffset
+  \install_stage_parenthesis_mode
+  \install_stage_text_mode
+  \install_stage_left_offset
+  \install_stage_right_offset
   \stageparameter\c!before
   \the\everybeforestage
   \advance\leftskip\currentstageleftoffset
@@ -218,23 +219,22 @@
   \endgroup
 }
 
-\def\dostage#1){\startstage#1\stopstage}
+\def\drama_parse_stage#1){\startstage#1\stopstage}
 
-\let\(\dostage
+\let\(\drama_parse_stage
 
 \def\openparameter#1{\getvalue{open:#1}}
-\def\dosetupopen[#1]{\getparameters[open:][#1]}
-\def\setupopen{\dosingleempty\dosetupopen}
+\def\setupopen{\dodoubleempty\getparameters[open:]}
 
 \newtoks\everybeforeopen
 \newtoks\everyafteropen
 \newbox\openbox
 
-\installalternative{open}{parenthesis}
-\installalternative{open}{text}
+\install_alternative_method{open}{parenthesis}
+\install_alternative_method{open}{text}
 
-\installoffsetmethod{open}{left}
-\installoffsetmethod{open}{right}
+\install_offset_method{open}{left}
+\install_offset_method{open}{right}
 
 \setupopen[
   \c!style=\empty,
@@ -244,15 +244,15 @@
   \c!before={\blank[white]},
 ]
 
-\def\startopen{\dosingleempty\dostartopen}
+\def\startopen{\dosingleempty\drama_start_open}
 
-\def\dostartopen[#1]{%
+\def\drama_start_open[#1]{%
   \begingroup
   \getparameters[open:][#1]%
-  \installopenparenthesismode
-  \installopentextmode
-  \installopenleftoffset
-  \installopenrightoffset
+  \install_open_parenthesis_mode
+  \install_open_text_mode
+  \install_open_left_offset
+  \install_open_right_offset
   \openparameter\c!before
   \the\everybeforeopen
   \advance\leftskip\currentopenleftoffset
@@ -276,9 +276,22 @@
   \endgroup
 }
 
-\unexpanded\def\theend{%
+\def\theend{\dosingleempty\drama_print_end}
+
+\unexpanded\def\drama_print_end[#1]{%
+  \begingroup
+  \install_dialog_cue_offset
+  \install_dialog_left_offset
   \vfil\penalty\plustwohundred\vfilneg
-  \startdialog[speaker={\labeltext{end}{}.}]\stopdialog
+  \cueoffset\dimexpr
+    \currentdialogcueoffset + \currentdialogleftoffset
+  \relax
+  \iffirstargument
+    \cue{\trylabeltext{#1}.}%
+  \else
+    \cue{\labeltext{end}.}%
+  \fi
+  \endgroup
   \ignorespaces
 }
 
