@@ -300,9 +300,9 @@
 	\checkparameters[#2]
 	\ifsecondargument
 		\ifparameters
-			\startdialog[\c!cue=\currentcharacter][#2, #3]%
+			\startdialog[\c!cue=\currentcharacter, #2, #3]%
 		\else
-			\startdialog[\c!cue=\currentcharacter, \c!extension={#2}][#3]%
+			\startdialog[\c!cue=\currentcharacter, \c!extension={#2}, #3]%
 		\fi
 	\else
 		\startdialog[\c!cue=\currentcharacter]%
@@ -407,7 +407,7 @@
 	\c!style=\empty,
 	\c!parentheticalstyle=\empty,
 	\c!tolerance=\v!strict,
-	\c!cue=\empty,
+	\c!cue={\labeltext{anonymous}},
 	\c!extension=\empty,
 	\c!before=\relax,
 	\c!after=\relax,
@@ -446,21 +446,17 @@
 
 \def\install_dialog_cue{%
 	\edef\dialogcueparameter{\dialogparameter\c!cue}%
-	\ifx\dialogcueparameter\empty
-		\edef\currentdialogcue{\labeltext{anonymous}}%
-	\else
-		\ifcsname character:\dialogcueparameter\endcsname
-			\edef\charactercueparameter{%
-				\namedcharacterparameter[\dialogcueparameter]\c!cue
-			}%
-			\ifx\charactercueparameter\empty
-				\edef\currentdialogcue{\csname\dialogcueparameter\c!name\endcsname}%
-			\else
-				\let\currentdialogcue\charactercueparameter
-			\fi
+	\ifcsname character:\dialogcueparameter\endcsname
+		\edef\charactercueparameter{%
+			\namedcharacterparameter[\dialogcueparameter]\c!cue
+		}%
+		\ifx\charactercueparameter\empty
+			\edef\currentdialogcue{\csname\dialogcueparameter\c!name\endcsname}%
 		\else
-			\let\currentdialogcue\dialogcueparameter
+			\let\currentdialogcue\charactercueparameter
 		\fi
+	\else
+		\let\currentdialogcue\dialogcueparameter
 	\fi
 }
 
