@@ -77,16 +77,6 @@
 \defineinterfaceconstant{introduction}{introduction}
 \defineinterfaceconstant{introductions}{introductions}
 \defineinterfaceconstant{introductionstyle}{\c!introduction\c!style}
-\defineinterfaceconstant{parenthetical}{parenthetical}
-\defineinterfaceconstant{parentheticalstyle}{\c!parenthetical\c!style}
-\defineinterfaceconstant{cue}{cue}
-\defineinterfaceconstant{split}{split}
-\defineinterfaceconstant{splitcue}{\c!split\c!cue}
-\defineinterfaceconstant{splitparenthetical}{\c!split\c!parenthetical}
-\defineinterfaceconstant{splitleft}{\c!split\c!left}
-\defineinterfaceconstant{splitright}{\c!split\c!right}
-\defineinterfaceconstant{speaker}{speaker}
-\defineinterfaceconstant{extension}{extension}
 
 \setuplabeltext[
 	anonymous={Anonymous},
@@ -310,12 +300,12 @@
 	\checkparameters[#2]
 	\ifsecondargument
 		\ifparameters
-			\startdialog[\c!speaker=\currentcharacter][#2, #3]%
+			\startdialog[\c!cue=\currentcharacter][#2, #3]%
 		\else
-			\startdialog[\c!speaker=\currentcharacter, \c!extension={#2}][#3]%
+			\startdialog[\c!cue=\currentcharacter, \c!extension={#2}][#3]%
 		\fi
 	\else
-		\startdialog[\c!speaker=\currentcharacter]%
+		\startdialog[\c!cue=\currentcharacter]%
 	\fi
 }
 
@@ -352,22 +342,19 @@
 	\the\everyaftersplit
 }
 
-\newtoks\everybeforedialog
-\newtoks\everyafterdialog
+\defineinterfaceconstant{parenthetical}{parenthetical}
+\defineinterfaceconstant{parentheticalstyle}{\c!parenthetical\c!style}
+\defineinterfaceconstant{cue}{cue}
+\defineinterfaceconstant{split}{split}
+\defineinterfaceconstant{splitcue}{\c!split\c!cue}
+\defineinterfaceconstant{splitparenthetical}{\c!split\c!parenthetical}
+\defineinterfaceconstant{splitleft}{\c!split\c!left}
+\defineinterfaceconstant{splitright}{\c!split\c!right}
 
-\newconditional\dialogmode
-\def\ifdialogmode{\ifconditional\dialogmode}
+\def\dialoglayoutparameter#1{\getvalue{dialoglayout:#1}}
+\def\setupdialoglayout{\dodoubleempty\getparameters[dialoglayout:]}
 
-\def\dialogparameter#1{\getvalue{dialog:#1}}
-\def\dialogoptionparameter#1{\getvalue{dialogoption:#1}}
-\def\setupdialog{\dodoubleempty\getparameters[dialog:]}
-
-\defineinterfacevariable{never}{never}
-
-\setupdialog[
-	\c!style=\empty,
-	\c!parentheticalstyle=\empty,
-	\c!tolerance=\v!strict,
+\setupdialoglayout[
 	\c!cue=\zeropoint,
 	\c!parenthetical=\zeropoint,
 	\c!left=\zeropoint,
@@ -376,6 +363,52 @@
 	\c!splitparenthetical=\empty,
 	\c!splitleft=\zeropoint,
 	\c!splitright=\zeropoint,
+]
+
+\def\install_dialog_layout_method#1{%
+	\expandafter\def\csname install_dialog_#1_offset\endcsname{%
+		\expandafter\edef\csname dialoglayout#1parameter\endcsname
+			{\dialoglayoutparameter{#1}}%
+		\ifsplitmode
+			\expandafter\edef\csname dialoglayoutsplit#1parameter\endcsname
+				{\dialoglayoutparameter{\c!split#1}}%
+			\expandafter\ifx\csname dialoglayoutsplit#1parameter\endcsname\empty
+				\expandafter\edef\csname currentdialog#1offset\endcsname
+					{\csname dialoglayout#1parameter\endcsname}%
+			\else
+				\expandafter\edef\csname currentdialog#1offset\endcsname
+					{\csname dialoglayoutsplit#1parameter\endcsname}%
+			\fi
+		\else
+			\expandafter\edef\csname currentdialog#1offset\endcsname
+				{\csname dialoglayout#1parameter\endcsname}%
+		\fi
+	}%
+}
+
+\install_dialog_layout_method\c!cue
+\install_dialog_layout_method\c!parenthetical
+\install_dialog_layout_method\c!left
+\install_dialog_layout_method\c!right
+
+\newtoks\everybeforedialog
+\newtoks\everyafterdialog
+
+\newconditional\dialogmode
+\def\ifdialogmode{\ifconditional\dialogmode}
+
+\def\dialogparameter#1{\getvalue{dialog:#1}}
+\def\setupdialog{\dodoubleempty\getparameters[dialog:]}
+
+\defineinterfaceconstant{extension}{extension}
+\defineinterfacevariable{never}{never}
+
+\setupdialog[
+	\c!style=\empty,
+	\c!parentheticalstyle=\empty,
+	\c!tolerance=\v!strict,
+	\c!cue=\empty,
+	\c!extension=\empty,
 	\c!before=\relax,
 	\c!after=\relax,
 ]
@@ -411,59 +444,33 @@
 		{\let\currentdialogtolerance\dialogtoleranceparameter}%
 }
 
-\def\install_dialog_speaker{%
-	\edef\dialogspeakerparameter{\dialogoptionparameter\c!speaker}%
-	\ifx\dialogspeakerparameter\empty
-		\edef\currentdialogspeaker{\labeltext{anonymous}}%
+\def\install_dialog_cue{%
+	\edef\dialogcueparameter{\dialogparameter\c!cue}%
+	\ifx\dialogcueparameter\empty
+		\edef\currentdialogcue{\labeltext{anonymous}}%
 	\else
-		\ifcsname character:\dialogspeakerparameter\endcsname
-			\edef\speakercueparameter{%
-				\namedcharacterparameter[\dialogspeakerparameter]\c!cue
+		\ifcsname character:\dialogcueparameter\endcsname
+			\edef\charactercueparameter{%
+				\namedcharacterparameter[\dialogcueparameter]\c!cue
 			}%
-			\ifx\speakercueparameter\empty
-				\edef\currentdialogspeaker{\csname\dialogspeakerparameter \c!name\endcsname}%
+			\ifx\charactercueparameter\empty
+				\edef\currentdialogcue{\csname\dialogcueparameter\c!name\endcsname}%
 			\else
-				\let\currentdialogspeaker\speakercueparameter
+				\let\currentdialogcue\charactercueparameter
 			\fi
 		\else
-			\let\currentdialogspeaker\dialogspeakerparameter
+			\let\currentdialogcue\dialogcueparameter
 		\fi
 	\fi
 }
 
 \def\install_dialog_extension{%
-	\edef\dialogextensionparameter{\dialogoptionparameter\c!extension}%
+	\edef\dialogextensionparameter{\dialogparameter\c!extension}%
 	\let\currentdialogextension\empty
 	\ifx\dialogextensionparameter\empty\else
 		\edef\currentdialogextension{~(\trylabeltext{\dialogextensionparameter})}%
 	\fi
 }
-
-\def\install_dialog_offset_method#1{%
-	\expandafter\def\csname install_dialog_#1_offset\endcsname{%
-		\expandafter\edef\csname dialog#1parameter\endcsname
-			{\dialogparameter{#1}}%
-		\ifsplitmode
-			\expandafter\edef\csname dialogsplit#1parameter\endcsname
-				{\dialogparameter{\c!split#1}}%
-			\expandafter\ifx\csname dialogsplit#1parameter\endcsname\empty
-				\expandafter\edef\csname currentdialog#1offset\endcsname
-					{\csname dialog#1parameter\endcsname}%
-			\else
-				\expandafter\edef\csname currentdialog#1offset\endcsname
-					{\csname dialogsplit#1parameter\endcsname}%
-			\fi
-		\else
-			\expandafter\edef\csname currentdialog#1offset\endcsname
-				{\csname dialog#1parameter\endcsname}%
-		\fi
-	}%
-}
-
-\install_dialog_offset_method\c!cue
-\install_dialog_offset_method\c!parenthetical
-\install_dialog_offset_method\c!left
-\install_dialog_offset_method\c!right
 
 \newbox\dialogbox
 \newbox\continuebox
@@ -475,15 +482,14 @@
 \chardef\dialoghastext=2
 \chardef\dialoghasparenthetical=3
 
-\def\startdialog{\dodoubleempty\drama_start_dialog}
+\def\startdialog{\dosingleempty\drama_start_dialog}
 
-\def\drama_start_dialog[#1][#2]{%
+\def\drama_start_dialog[#1]{%
 	\begingroup
 	\settrue\dialogmode
 	\dialogstate\dialogneedscue
-	\getparameters[dialogoption:][\c!speaker=\empty, \c!extension=\empty, #1]%
-	\getparameters[dialog:][#2]%
-	\install_dialog_speaker
+	\getparameters[dialog:][#1]%
+	\install_dialog_cue
 	\install_dialog_extension
 	\install_dialog_tolerance
 	\install_dialog_cue_offset
@@ -537,9 +543,9 @@
 	\setbox\dialogbox\hbox{\unhbox\dialogbox\space\unhbox\continuebox}%
 }
 
-\def\dialog_print_cue{\cue{\currentdialogspeaker\currentdialogextension}}
+\def\dialog_print_cue{\cue{\currentdialogcue\currentdialogextension}}
 \def\dialog_print_more{\cue{(\labeltext{more})}}
-\def\dialog_print_continued{\cue{\currentdialogspeaker~(\labeltext{continued})}}
+\def\dialog_print_continued{\cue{\currentdialogcue~(\labeltext{continued})}}
 
 \newconditional\dialog_check_snug
 \newconditional\dialog_check_fit
