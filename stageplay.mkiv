@@ -25,13 +25,14 @@
   act={Act~},
   scene={Scene~},
   cast={Cast},
-  castofcharacters={Cast~of~Characters}%
+  castofcharacters={Cast~of~Characters},
+  offstage={O.S.}%
 ]
 
 \definehead[acthead][chapter][
   bodypartlabel=act,
   conversion=Romannumerals,
-  before={\testpage[3]},
+  before={\filbreak\testpage[3]},
 ]
 
 \def\act{\dosinglegroupempty\drama_act}
@@ -51,7 +52,7 @@
 	sectionsegments=chapter:section,
 	sectionseparatorset=sectionseparatorset,
 	sectionconversionset=sectionconversionset,
-  before={\testpage[3]},
+  before={\filbreak\testpage[3]},
 ]
 
 \def\scene{\dosinglegroupempty\drama_scene}
@@ -96,7 +97,8 @@
   \let\currentcharactergender\empty
   \ifcsname\currentcharacter gender\endcsname
     \edef\currentcharactergender{%
-      (\csname\currentcharacter gender\endcsname)\space
+      (\csname\currentcharacter gender\endcsname)%
+      \space
     }%
   \fi
 }
@@ -109,10 +111,12 @@
     \writetolist[cast]{}{%
       \setupsplit[1][width=\dimexpr 1.5in - \emwidth\relax]%
       \startsplit
-      \castpageparameter\c!characterstyle\currentcharactername
+      \castpageparameter\c!characterstyle
+      \currentcharactername
       \split
       \castpageparameter\c!descriptionstyle
-      \currentcharactergender\currentcharacterdescription
+      \currentcharactergender
+      \currentcharacterdescription
       \stopsplit
     }%
   }%
