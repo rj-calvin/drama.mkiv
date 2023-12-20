@@ -131,7 +131,7 @@
 	\csname\currenthead offset\endcsname\zeropoint
 \to \everydefinehead
 
-\def\getheadoffset{%
+\def\currentheadoffset{%
 	\ifcsname\currenthead offset\endcsname
 		\csname\currenthead offset\endcsname\relax
 	\else
@@ -139,10 +139,10 @@
 	\fi
 }
 
-\def\getheadprefix{%
-	\edef\currentheadprefix{\headparameter\c!prefix}%
-	\ifx\currentheadprefix\empty\else
-		\trylabeltext{\currentheadprefix}%
+\def\currentheadprefix{%
+	\edef\headprefixparameter{\headparameter\c!prefix}%
+	\ifx\headprefixparameter\empty\else
+		\trylabeltext{\headprefixparameter}%
 		\space
 	\fi
 }
@@ -152,7 +152,7 @@
 	style=\tf\bf\WORD,
 	align=middle,
 	textstyle=normal,
-	textcommand=\getheadprefix\firstofoneargument,
+	textcommand=\currentheadprefix\firstofoneargument,
 	before=\relax,
 	after=\relax,
 ]
@@ -174,8 +174,8 @@
 	align=flushleft,
 	style=\tf\WORD,
 	textcommand=%
-		\advance\leftskip\getheadoffset
-		\getheadprefix
+		\advance\leftskip\currentheadoffset
+		\currentheadprefix
 		\firstofoneargument,
 	before=\relax,
 	after=\relax,
@@ -186,8 +186,8 @@
 	align={flushleft,broad},
 	style=\tf\WORD,
 	textcommand=%
-		\advance\leftskip\getheadoffset
-		\getheadprefix
+		\advance\leftskip\currentheadoffset
+		\currentheadprefix
 		\firstofoneargument,
 	before=\relax,
 	after=\relax,
@@ -198,8 +198,8 @@
 	align=flushleft,
 	style=\tf\WORD,
 	textcommand=%
-		\advance\leftskip\getheadoffset
-		\getheadprefix
+		\advance\leftskip\currentheadoffset
+		\currentheadprefix
 		\firstofoneargument,
 	before=\relax,
 	after=\relax,
@@ -296,7 +296,7 @@
 \def\startcharacter[#1][#2][#3]{%
 	\begingroup
 	\edef\currentcharacter{#1}%
-	\checkparameters[#2]
+	\checkparameters[#2]%
 	\ifsecondargument
 		\ifparameters
 			\startdialog[\c!cue=\currentcharacter, #2, #3]%

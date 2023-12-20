@@ -198,8 +198,9 @@
 		textdistance=\cutsparameter\c!textdistance,
 		alternative=text,
 		textcommand=%
-			\advance\leftskip\getheadoffset
-			\getheadprefix\unskip
+			\advance\leftskip\currentheadoffset
+			\currentheadprefix
+			\unskip
 			\headparameter\c!separator
 			\firstofoneargument,
 		#2,
@@ -243,7 +244,9 @@
 		separator=\transitionsparameter\c!separator,
 		textdistance=\zeropoint,
 		textcommand=%
-			\hfill\getheadprefix\unskip
+			\hfill
+			\currentheadprefix
+			\unskip
 			\headparameter\c!separator
 			\gobbleoneargument,
 		#2,
