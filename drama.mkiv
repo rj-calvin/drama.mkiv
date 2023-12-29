@@ -260,8 +260,8 @@
 	\edef\currentcharactername{\characterparameter\c!name}%
 	\expandafter\def\csname#1\endcsname{\dodoubleempty\printcharacter[#1]}%
 	\expandafter\def\csname setup#1\endcsname{\dodoubleempty\setupcharacter[#1]}%
-	\expandafter\def\csname start#1\endcsname{\dotripleempty\startcharacter[#1]}%
-	\expandafter\def\csname stop#1\endcsname{\stopcharacter}%
+	\expandafter\def\csname start#1\endcsname{\doquadrupleempty\start[character][#1]}%
+	\expandafter\def\csname stop#1\endcsname{\stop}%
 	\the\everydefinecharacter
 }
 

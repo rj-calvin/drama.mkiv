@@ -240,11 +240,11 @@
 
 \appendtoks\goodbreak\to\everybeforeopen
 
-\install_alternative_method{open}{parenthesis}
-\install_alternative_method{open}{text}
+\install_alternative_method{open}{\v!parenthesis}
+\install_alternative_method{open}{\v!text}
 
-\install_offset_method{open}{left}
-\install_offset_method{open}{right}
+\install_offset_method{open}{\v!left}
+\install_offset_method{open}{\v!right}
 
 \setupopen[
   \c!style=\empty,
@@ -283,6 +283,61 @@
   }%
   \openparameter\c!after
   \the\everyafteropen
+  \endgroup
+}
+
+\def\instructionparameter#1{\getvalue{instruction:#1}}
+\def\setupinstruction{\dodoubleempty\getparameters[instruction:]}
+
+\newtoks\everybeforeinstruction
+\newtoks\everyafterinstruction
+\newbox\instructionbox
+
+\appendtoks\goodbreak\to\everybeforeinstruction
+
+\install_alternative_method{instruction}{\v!parenthesis}
+\install_alternative_method{instruction}{\v!text}
+
+\install_offset_method{instruction}{\v!left}
+\install_offset_method{instruction}{\v!right}
+
+\setupinstruction[
+  \c!style=\empty,
+  \c!alternative=\v!parenthesis,
+  \c!left=2in,
+  \c!right=\zeropoint,
+  \c!before={\blank[white]},
+]
+
+\def\startinstruction{\dosingleempty\drama_start_instruction}
+
+\def\drama_start_instruction[#1]{%
+  \begingroup
+  \getparameters[instruction:][#1]%
+  \install_instruction_parenthesis_mode
+  \install_instruction_text_mode
+  \install_instruction_left_offset
+  \install_instruction_right_offset
+  \instructionparameter\c!before
+  \the\everybeforeinstruction
+  \advance\leftskip\currentinstructionleftoffset
+  \advance\rightskip\currentinstructionrightoffset
+  \setbox\instructionbox\hbox\bgroup
+  \instructionparameter\c!style
+  \ignorespaces
+}
+
+\def\stopinstruction{%
+  \egroup
+  \vpar{%
+    \ifinstructionparenthesismode
+      (\unhbox\instructionbox\unskip)%
+    \else
+      \unhbox\instructionbox
+    \fi
+  }%
+  \instructionparameter\c!after
+  \the\everyafterinstruction
   \endgroup
 }
 
