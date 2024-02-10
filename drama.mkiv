@@ -44,10 +44,38 @@
 	backspace=\dimexpr \leftedgewidth + \leftmarginwidth\relax,
 ]
 
+\definelayer[contactlayer]
+
+\startsetups[doc:coverpage]
+	\definestartstop[contact][
+		before={%
+			\setlayerframed[contactlayer][
+				frame=off,
+				location={top,right},
+				align=right,
+				x=\backspace,
+				y=\dimexpr\topspace + \textheight\relax,
+			]%
+			\bgroup
+		},
+		after={\egroup},
+	]
+
+	\startmode[blind]
+		\setupstartstop[contact][
+			before={\bgroup\setbox\scratchbox\vbox\bgroup},
+			after={\egroup\egroup},
+		]
+	\stopmode
+\stopsetups
+
 \definemakeup[coverpage][
 	top=\vfill,
 	bottom=\vfill,
 	align=middle,
+	setups=doc:coverpage,
+	before={\setupbackgrounds[page][background=contactlayer]},
+	after={\setupbackgrounds[page][background=\relax]},
 ]
 
 \setuplayout[coverpage][
@@ -70,6 +98,7 @@
 \setuptolerance[vertical, verystrict]
 
 \definemode[final][keep]
+\definemode[blind][keep]
 
 \defineinterfaceconstant{character}{character}
 \defineinterfaceconstant{introduce}{introduce}
@@ -159,14 +188,15 @@
 
 \definehead[subtitle][title][
 	page=no,
-	style=\tf\WORD
+	style=\tf\WORD,
 ]
 
 \definehead[subsubtitle][subtitle][style=\tf]
 
 \definehead[author][subsubtitle][
 	prefix=by,
-	before={\blank[2*line]}
+	placehead={\doifmode{blind}{no}},
+	before={\blank[2*line]},
 ]
 
 \setuphead[chapter][
@@ -805,26 +835,20 @@
 \def\startdraft{\dosingleempty\drama_start_draft}
 
 \def\drama_start_draft[#1]{%
-	\setbox\scratchbox\vbox\bgroup
+	\draftparameter\c!before
+	\the\everybeforedraft
 	\iffirstargument
 		\startcolor[#1]%
 	\else
 		\startcolor[\draftparameter\c!color]%
 	\fi
-	\setupdialog[tolerance=never]%
 	\ignorespaces
 }
 
 \def\stopdraft{%
 	\stopcolor
-	\egroup
-	\doifnotmode{final}{%
-		\draftparameter\c!before
-		\the\everybeforedraft
-		\box\scratchbox
-		\draftparameter\c!after
-		\the\everyafterdraft
-	}%
+	\draftparameter\c!after
+	\the\everyafterdraft
 	\ignorespaces
 }
 
