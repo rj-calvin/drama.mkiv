@@ -3,6 +3,7 @@
 \unprotect
 
 \definemode[blind][keep]
+\definemode[sample][keep]
 
 \mainlanguage[en]
 
@@ -42,11 +43,12 @@
 	bottom=0.5in,
 	bottomdistance=\zeropoint,
 	height=fit,
-	topspace=\dimexpr \topheight + \topdistance\relax,
-	backspace=\dimexpr \leftedgewidth + \leftmarginwidth\relax,
+	topspace=\dimexpr\topheight + \topdistance\relax,
+	backspace=\dimexpr\leftedgewidth + \leftmarginwidth\relax,
 ]
 
 \definelayer[contactlayer]
+\definelayer[copyrightlayer]
 
 \startsetups[doc:coverpage]
 	\definestartstop[contact][
@@ -60,7 +62,7 @@
 			]%
 			\bgroup
 		},
-		after=\egroup,
+		after=\unskip\egroup,
 	]
 
 	\startmode[blind]
@@ -69,6 +71,20 @@
 			after=\egroup\egroup,
 		]
 	\stopmode
+
+	\definestartstop[copyright][
+		before={%
+			\setlayerframed[copyrightlayer][
+				frame=off,
+				location={top,left},
+				align=left,
+				x=\dimexpr\backspace + \textwidth\relax,
+				y=\dimexpr\topspace + \textheight\relax,
+			]%
+			\bgroup
+		},
+		after=\unskip\egroup,
+	]
 \stopsetups
 
 \definemakeup[coverpage][
@@ -76,7 +92,7 @@
 	bottom=\vfill,
 	align=middle,
 	setups=doc:coverpage,
-	before={\setupbackgrounds[page][background=contactlayer]},
+	before={\setupbackgrounds[page][background={contactlayer,copyrightlayer}]},
 	after={\setupbackgrounds[page][background=\relax]},
 ]
 
