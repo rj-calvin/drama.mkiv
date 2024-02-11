@@ -58,13 +58,13 @@
 			]%
 			\bgroup
 		},
-		after={\egroup},
+		after=\egroup,
 	]
 
 	\startmode[blind]
 		\setupstartstop[contact][
-			before={\bgroup\setbox\scratchbox\vbox\bgroup},
-			after={\egroup\egroup},
+			before=\bgroup\setbox\scratchbox\vbox\bgroup,
+			after=\egroup\egroup,
 		]
 	\stopmode
 \stopsetups
@@ -235,10 +235,18 @@
 	after=\relax,
 ]
 
-\definehead[cue][subject][
-	before=\relax,
-	after=\relax,
-]
+\newdimen\cueoffset
+\cueoffset\zeropoint
+
+\def\cue#1{%
+	\begingroup
+	\penalty\zerocount
+	\leavevmode
+	\advance\leftskip\cueoffset
+	\tf\WORD#1
+	\endgraf
+	\endgroup
+}
 
 \setupcombinedlist[content][list={chapter, section}, alternative=c]
 \setupinteraction[state=start, color=middleblue]
@@ -435,14 +443,16 @@
 \setupdialog[
 	\c!style=\empty,
 	\c!parentheticalstyle=\empty,
-	\c!tolerance=\v!strict,
+	\c!tolerance=\v!verystrict,
 	\c!cue={\labeltext{anonymous}},
 	\c!extension=\empty,
 	\c!before=\relax,
 	\c!after=\relax,
 ]
 
-\def\drama_install_dialog_tolerance_method#1#2{\setvalue{dialogtolerance:#1}{#2}}
+\def\drama_install_dialog_tolerance_method#1#2{%
+	\setvalue{dialogtolerance:#1}{#2}%
+}
 
 \drama_install_dialog_tolerance_method\v!never{%
 	\def\currentdialogtolerance{-1000}%
@@ -530,7 +540,7 @@
 	\let\:\coloncontinue
 	\let\(\dialog_parse_parenthetical
 	\cueoffset\dimexpr
-		\currentdialogcueoffset + \currentdialogleftoffset
+		\currentdialogcueoffset - \currentdialogleftoffset
 	\relax
 	\dialogparameter\c!before
 	\the\everybeforedialog
@@ -544,14 +554,18 @@
 
 \def\dialog_print_parenthetical{%
 	\vpar{%
-		\advance\leftskip\currentdialogparentheticaloffset
+		\advance\leftskip\dimexpr
+			\currentdialogparentheticaloffset - \currentdialogleftoffset
+		\relax
 		(\unhbox\parentheticalbox)%
 	}%
 }
 
 \def\dialog_copy_parenthetical{%
 	\vpar{%
-		\advance\leftskip\currentdialogparentheticaloffset
+		\advance\leftskip\dimexpr
+			\currentdialogparentheticaloffset - \currentdialogleftoffset
+		\relax
 		(\unhcopy\parentheticalbox)%
 	}%
 }
