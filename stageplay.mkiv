@@ -32,7 +32,7 @@
 \definehead[acthead][chapter][
   bodypartlabel=act,
   conversion=Romannumerals,
-  before={\filbreak\testpage[3]},
+  before={\goodbreak\testpage[3]},
 ]
 
 \def\act{\dosinglegroupempty\drama_act}
@@ -52,7 +52,7 @@
 	sectionsegments=chapter:section,
 	sectionseparatorset=sectionseparatorset,
 	sectionconversionset=sectionconversionset,
-  before={\filbreak\testpage[3]},
+  before={\goodbreak\testpage[3]},
 ]
 
 \def\scene{\dosinglegroupempty\drama_scene}
@@ -179,7 +179,11 @@
 \newtoks\everyafterstage
 \newbox\stagebox
 
-\appendtoks\goodbreak\to\everybeforestage
+\appendtoks
+  \ifstageparenthesismode
+    \penalty-\plusfifty\relax
+  \fi
+\to\everybeforestage
 
 \install_alternative_method{stage}{\v!parenthesis}
 \install_alternative_method{stage}{\v!text}
@@ -208,20 +212,18 @@
   \the\everybeforestage
   \advance\leftskip\currentstageleftoffset
   \advance\rightskip\currentstagerightoffset
-  \setbox\stagebox\hbox\bgroup
   \stageparameter\c!style
+  \ifstageparenthesismode
+    (%
+  \fi
   \ignorespaces
 }
 
 \def\stopstage{%
-  \egroup
-  \vpar{%
-    \ifstageparenthesismode
-      (\unhbox\stagebox)%
-    \else
-      \unhbox\stagebox
-    \fi
-  }%
+  \ifstageparenthesismode
+    \unskip)%
+  \fi
+  \endgraf
   \stageparameter\c!after
   \the\everyafterstage
   \endgroup
@@ -238,7 +240,11 @@
 \newtoks\everyafteropen
 \newbox\openbox
 
-\appendtoks\goodbreak\to\everybeforeopen
+\appendtoks
+  \ifopenparenthesismode
+    \penalty-\plusfifty\relax
+  \fi
+\to\everybeforeopen
 
 \install_alternative_method{open}{\v!parenthesis}
 \install_alternative_method{open}{\v!text}
@@ -267,20 +273,18 @@
   \the\everybeforeopen
   \advance\leftskip\currentopenleftoffset
   \advance\rightskip\currentopenrightoffset
-  \setbox\openbox\hbox\bgroup
   \openparameter\c!style
+  \ifopenparenthesismode
+    (%
+  \fi
   \ignorespaces
 }
 
 \def\stopopen{%
-  \egroup
-  \vpar{%
-    \ifopenparenthesismode
-      (\unhbox\openbox\unskip)%
-    \else
-      \unhbox\openbox
-    \fi
-  }%
+  \ifopenparenthesismode
+    \unskip)%
+  \fi
+  \endgraf
   \openparameter\c!after
   \the\everyafteropen
   \endgroup
@@ -293,7 +297,11 @@
 \newtoks\everyafterinstruction
 \newbox\instructionbox
 
-\appendtoks\goodbreak\to\everybeforeinstruction
+\appendtoks
+  \ifinstructionparenthesismode
+    \penalty-\plusfifty\relax
+  \fi
+\to\everybeforeinstruction
 
 \install_alternative_method{instruction}{\v!parenthesis}
 \install_alternative_method{instruction}{\v!text}
@@ -322,20 +330,18 @@
   \the\everybeforeinstruction
   \advance\leftskip\currentinstructionleftoffset
   \advance\rightskip\currentinstructionrightoffset
-  \setbox\instructionbox\hbox\bgroup
   \instructionparameter\c!style
+  \ifinstructionparenthesismode
+    (%
+  \fi
   \ignorespaces
 }
 
 \def\stopinstruction{%
-  \egroup
-  \vpar{%
-    \ifinstructionparenthesismode
-      (\unhbox\instructionbox\unskip)%
-    \else
-      \unhbox\instructionbox
-    \fi
-  }%
+  \ifinstructionparenthesismode
+    \unskip)%
+  \fi
+  \endgraf
   \instructionparameter\c!after
   \the\everyafterinstruction
   \endgroup
@@ -346,11 +352,8 @@
 \unexpanded\def\drama_print_end[#1]{%
   \begingroup
   \install_dialog_cue_offset
-  \install_dialog_left_offset
-  \vfil\penalty\plustwohundred\vfilneg
-  \cueoffset\dimexpr
-    \currentdialogcueoffset + \currentdialogleftoffset
-  \relax
+  \penalty\plustwohundred
+  \cueoffset\currentdialogcueoffset
   \iffirstargument
     \cue{\trylabeltext{#1}.}%
   \else

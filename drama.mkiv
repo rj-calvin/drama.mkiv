@@ -239,10 +239,10 @@
 
 \def\cue#1{%
 	\begingroup
-	\penalty\zerocount
-	\leavevmode
+	\ifhmode\endgraf\fi
+	\allowbreak
 	\advance\leftskip\cueoffset
-	\tf\WORD#1
+	\tf\WORD#1%
 	\endgraf
 	\endgroup
 }
@@ -255,7 +255,8 @@
 		\setbox\scratchbox\vtop{\unvcopy\nextbox}%
 		\scratchdimen\dimexpr\dp\scratchbox - \dp\nextbox\relax
 		\dp\scratchbox\dp\nextbox
-		\par\box\scratchbox
+		\endgraf
+		\box\scratchbox
 		\kern\scratchdimen
 		\egroup
 	}%
@@ -624,9 +625,10 @@
 		}%
 		\dialog_check_page
 		\ifconditional\dialog_check_fit\else
-			\penalty-\plustenthousand
+			\break
 		\fi
 		\dialog_print_cue
+		\nobreak
 	\or % leading parenthetical
 		\setbox\scratchbox\vbox{%
 			\dialog_print_cue
@@ -636,9 +638,10 @@
 		}%
 		\dialog_check_page
 		\ifconditional\dialog_check_fit\else
-			\penalty-\plustenthousand
+			\break
 		\fi
 		\dialog_print_cue
+		\nobreak
 		\dialog_print_parenthetical
 	\or % has text
 		\setbox\scratchbox\vbox{%
@@ -650,8 +653,9 @@
 			\ifconditional\dialog_check_snug
 				\dialog_print_text
 				\dialog_print_more
-				\penalty-\plustenthousand
+				\break
 				\dialog_print_continued
+				\nobreak
 				\setbox\dialogbox\box\continuebox
 			\else
 				\setbox\scratchbox\vbox{%
@@ -664,8 +668,9 @@
 				\else
 					\dialog_print_text
 					\dialog_print_more
-					\penalty-\plustenthousand
+					\break
 					\dialog_print_continued
+					\nobreak
 					\setbox\dialogbox\box\continuebox
 				\fi
 			\fi
@@ -687,8 +692,9 @@
 			\ifconditional\dialog_check_snug
 				\dialog_print_text
 				\dialog_print_more
-				\penalty-\plustenthousand
+				\break
 				\dialog_print_continued
+				\nobreak
 				\dialog_print_parenthetical
 				\setbox\dialogbox\box\continuebox
 			\else
@@ -706,8 +712,9 @@
 				\else
 					\dialog_print_text
 					\dialog_print_more
-					\penalty-\plustenthousand
+					\break
 					\dialog_print_continued
+					\nobreak
 					\dialog_print_parenthetical
 					\setbox\dialogbox\box\continuebox
 				\fi
@@ -812,6 +819,7 @@
 		\else
 			\testpage[3]%
 			\dialog_print_cue
+			\nobreak
 			\dialog_print_parenthetical
 		\fi
 	\fi
