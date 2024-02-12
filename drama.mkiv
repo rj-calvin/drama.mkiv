@@ -459,45 +459,11 @@
 \setupdialog[
 	\c!style=\empty,
 	\c!parentheticalstyle=\empty,
-	\c!tolerance=\v!verystrict,
 	\c!cue={\labeltext{anonymous}},
 	\c!extension=\empty,
 	\c!before=\relax,
 	\c!after=\relax,
 ]
-
-\def\drama_install_dialog_tolerance_method#1#2{%
-	\setvalue{dialogtolerance:#1}{#2}%
-}
-
-\drama_install_dialog_tolerance_method\v!never{%
-	\def\currentdialogtolerance{-1000}%
-}
-
-\drama_install_dialog_tolerance_method\v!verystrict{%
-	\def\currentdialogtolerance{\plusone}%
-}
-
-\drama_install_dialog_tolerance_method\v!strict{%
-	\def\currentdialogtolerance{\plustwo}%
-}
-
-\drama_install_dialog_tolerance_method\v!tolerant{%
-	\def\currentdialogtolerance{\plusthree}%
-}
-
-\drama_install_dialog_tolerance_method\v!verytolerant{%
-	\def\currentdialogtolerance{\plusfive}%
-}
-
-\def\install_dialog_tolerance{%
-	\edef\dialogtoleranceparameter{\dialogparameter\c!tolerance}%
-	\doifinsetelse
-		{\dialogtoleranceparameter}%
-		{\v!never,\v!verystrict,\v!strict,\v!tolerant,\v!verytolerant}%
-		{\getvalue{dialogtolerance:\dialogtoleranceparameter}}%
-		{\let\currentdialogtolerance\dialogtoleranceparameter}%
-}
 
 \def\install_dialog_cue{%
 	\edef\dialogcueparameter{\dialogparameter\c!cue}%
@@ -542,7 +508,6 @@
 	\getparameters[dialog:][#1]%
 	\install_dialog_cue
 	\install_dialog_extension
-	\install_dialog_tolerance
 	\install_dialog_cue_offset
 	\install_dialog_parenthetical_offset
 	\install_dialog_left_offset
@@ -586,7 +551,6 @@
 	}%
 }
 
-\def\dialog_print_text{\vpar{\unhbox\dialogbox}}
 \def\dialog_copy_text{\vpar{\unhcopy\dialogbox}}
 \def\dialog_copy_continue_text{\vpar{\unhcopy\continuebox}}
 
@@ -594,40 +558,27 @@
 	\vpar{\unhcopy\dialogbox\space\unhcopy\continuebox}%
 }
 
-\def\dialog_concat_text{%
-	\setbox\dialogbox\hbox{\unhbox\dialogbox\space\unhbox\continuebox}%
-}
-
+\def\dialog_print_text{\vpar{\unhbox\dialogbox}}
+\def\dialog_print_concat_text{\unhbox\dialogbox\space\unhbox\continuebox}
 \def\dialog_print_cue{\cue{\currentdialogcue\currentdialogextension}}
 \def\dialog_print_more{\cue{(\labeltext{more})}}
 \def\dialog_print_continued{\cue{\currentdialogcue~(\labeltext{continued})}}
 
-\newconditional\dialog_check_snug
+\def\dialog_log_overflow{%
+	\writestatus{drama}{%
+		dialog overflow: page \pagenumber\space
+		(use continuation markers to break up blocks of dialog)%
+	}%
+}
+
 \newconditional\dialog_check_fit
 
 \def\dialog_check_page{%
 	\setfalse\dialog_check_fit
-	\setfalse\dialog_check_snug
 	\ifdim
-		\dimexpr
-			\pagetotal
-				+ \htdp\scratchbox
-				- \pageshrink
-		\relax < \pagegoal
+		\dimexpr\pagetotal + \htdp\scratchbox - \pageshrink\relax < \pagegoal
 	\relax
 		\settrue\dialog_check_fit
-		\ifdim
-			\dimexpr
-				\currentdialogtolerance\lineheight
-					+ \pagetotal
-					+ \htdp\scratchbox
-					\ifdim\lastskip < \parskip
-						+ \parskip
-					\fi
-			\relax > \pagegoal
-		\relax
-			\settrue\dialog_check_snug
-		\fi
 	\fi
 }
 
@@ -659,14 +610,22 @@
 		\dialog_print_cue
 		\nobreak
 		\dialog_print_parenthetical
+		\nobreak
 	\or % has text
 		\setbox\scratchbox\vbox{%
-			\dialog_copy_text
+			\dialog_copy_concat_text
 			\dialog_print_more
 		}%
 		\dialog_check_page
 		\ifconditional\dialog_check_fit
-			\ifconditional\dialog_check_snug
+			\setbox\dialogbox\hbox{\dialog_print_concat_text}%
+		\else
+			\setbox\scratchbox\vbox{%
+				\dialog_copy_text
+				\dialog_print_more
+			}%
+			\dialog_check_page
+			\ifconditional\dialog_check_fit
 				\dialog_print_text
 				\dialog_print_more
 				\break
@@ -674,38 +633,30 @@
 				\nobreak
 				\setbox\dialogbox\box\continuebox
 			\else
-				\setbox\scratchbox\vbox{%
-					\dialog_copy_concat_text
-					\dialog_print_more
-				}%
-				\dialog_check_page
-				\ifconditional\dialog_check_fit
-					\dialog_concat_text
-				\else
-					\dialog_print_text
-					\dialog_print_more
-					\break
-					\dialog_print_continued
-					\nobreak
-					\setbox\dialogbox\box\continuebox
-				\fi
+				\dialog_log_overflow
+				\dialog_print_text
+				\setbox\dialogbox\box\continuebox
 			\fi
-		\else
-			\message{%
-				Dialog overflow!
-				Use continuation markers to break up blocks of dialog.%
-			}%
-			\dialog_print_text
-			\setbox\dialogbox\box\continuebox
 		\fi
 	\or % has parenthetical
 		\setbox\scratchbox\vbox{%
 			\dialog_copy_text
+			\dialog_copy_parenthetical
+			\dialog_copy_continue_text
 			\dialog_print_more
 		}%
 		\dialog_check_page
 		\ifconditional\dialog_check_fit
-			\ifconditional\dialog_check_snug
+			\dialog_print_text
+			\dialog_print_parenthetical
+			\setbox\dialogbox\box\continuebox
+		\else
+			\setbox\scratchbox\vbox{%
+				\dialog_copy_text
+				\dialog_print_more
+			}%
+			\dialog_check_page
+			\ifconditional\dialog_check_fit
 				\dialog_print_text
 				\dialog_print_more
 				\break
@@ -714,35 +665,11 @@
 				\dialog_print_parenthetical
 				\setbox\dialogbox\box\continuebox
 			\else
-				\setbox\scratchbox\vbox{%
-					\dialog_copy_text
-					\dialog_copy_parenthetical
-					\dialog_copy_continue_text
-					\dialog_print_more
-				}%
-				\dialog_check_page
-				\ifconditional\dialog_check_fit
-					\dialog_print_text
-					\dialog_print_parenthetical
-					\setbox\dialogbox\box\continuebox
-				\else
-					\dialog_print_text
-					\dialog_print_more
-					\break
-					\dialog_print_continued
-					\nobreak
-					\dialog_print_parenthetical
-					\setbox\dialogbox\box\continuebox
-				\fi
+				\dialog_log_overflow
+				\dialog_print_text
+				\dialog_print_parenthetical
+				\setbox\dialogbox\box\continuebox
 			\fi
-		\else
-			\message{%
-				Dialog overflow!
-				Use continuation markers to break up blocks of dialog.%
-			}%
-			\dialog_print_text
-			\dialog_print_parenthetical
-			\setbox\dialogbox\box\continuebox
 		\fi
 	\fi
 }
@@ -833,7 +760,6 @@
 		\ifnum\dialogstate = \dialogneedscue
 			\dialog_print_cue
 		\else
-			\testpage[3]%
 			\dialog_print_cue
 			\nobreak
 			\dialog_print_parenthetical
