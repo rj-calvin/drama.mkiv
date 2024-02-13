@@ -253,13 +253,29 @@
 \newdimen\cueoffset
 \cueoffset\zeropoint
 
+\newtoks\everybeforecue
+\newtoks\everyaftercue
+
+\def\cueparameter#1{\getvalue{cue:#1}}
+\def\setupcue{\dodoubleempty\getparameters[cue:]}
+
+\setupcue[
+	\c!style=\tf\WORD,
+	\c!before=\allowbreak,
+	\c!after=\relax,
+]
+
 \def\cue#1{%
 	\begingroup
 	\ifhmode\endgraf\fi
-	\allowbreak
+	\cueparameter\c!before
+	\the\everybeforecue
 	\advance\leftskip\cueoffset
-	\tf\WORD#1%
+	\cueparameter\c!style
+	#1%
 	\endgraf
+	\the\everyaftercue
+	\cueparameter\c!after
 	\endgroup
 }
 
