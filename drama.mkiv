@@ -261,9 +261,13 @@
 
 \setupcue[
 	\c!style=\tf\WORD,
-	\c!before=\allowbreak,
+	\c!before=\relax,
 	\c!after=\relax,
 ]
+
+\appendtoks
+	\allowbreak
+\to \everybeforecue
 
 \def\cue#1{%
 	\begingroup

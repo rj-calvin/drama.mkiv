@@ -12,7 +12,11 @@
 	right=1.5in,
 ]
 
-\setupcue[before=\penalty-20]
+\everybeforecue\emptytoks
+
+\appendtoks
+	\penalty-\plusfifty
+\to \everybeforecue
 
 \setupcharacters[
 	introductions=yes,
