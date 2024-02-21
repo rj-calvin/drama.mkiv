@@ -540,9 +540,7 @@
 	\let\;\semicoloncontinue
 	\let\:\coloncontinue
 	\let\(\dialog_parse_parenthetical
-	\cueoffset\dimexpr
-		\currentdialogcueoffset - \currentdialogleftoffset
-	\relax
+	\cueoffset\dimexpr\currentdialogcueoffset - \currentdialogleftoffset\relax
 	\dialogparameter\c!before
 	\the\everybeforedialog
 	\advance\leftskip\currentdialogleftoffset

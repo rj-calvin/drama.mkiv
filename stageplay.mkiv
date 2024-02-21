@@ -232,10 +232,7 @@
 \def\drama_parse_stage#1){\startstage#1\stopstage}
 \let\(\drama_parse_stage
 
-\def\stage{%
-  \startstage
-  \let\par\stopstage
-}
+\def\stage{\startstage\let\par\stopstage}
 
 \def\openparameter#1{\getvalue{open:#1}}
 \def\setupopen{\dodoubleempty\getparameters[open:]}
@@ -294,10 +291,7 @@
   \endgroup
 }
 
-\def\open{%
-  \startopen
-  \let\par\stopopen
-}
+\def\open{\startopen\let\par\stopopen}
 
 \def\instructionparameter#1{\getvalue{instruction:#1}}
 \def\setupinstruction{\dodoubleempty\getparameters[instruction:]}
@@ -356,10 +350,7 @@
   \endgroup
 }
 
-\def\instruction{%
-  \startinstruction
-  \let\par\stopinstruction
-}
+\def\instruction{\startinstruction\let\par\stopinstruction}
 
 \def\theend{\dosingleempty\drama_print_end}
 
