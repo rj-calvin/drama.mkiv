@@ -547,6 +547,7 @@
 	\advance\rightskip\currentdialogrightoffset
 	\vfil\vfilneg
 	\setbox\dialogbox\hbox\bgroup
+	\let\par\continue
 	\dialogparameter\c!style
 	\ignorespaces
 }
@@ -694,6 +695,7 @@
 
 \def\continue{%
 	\ifdialogmode
+		\unskip
 		\egroup
 		\ifdim\ht\dialogbox > \zeropoint
 			\ifnum\dialogstate < \dialoghastext
@@ -709,6 +711,7 @@
 		\else
 			\setbox\dialogbox\hbox\bgroup
 		\fi
+		\let\par\continue
 		\dialogparameter\c!style
 	\fi
 	\ignorespaces
@@ -730,6 +733,7 @@
 			\dialogstate\dialoghasleadingparenthetical
 		\fi
 		\setbox\parentheticalbox\hbox\bgroup
+		\let\continue\relax
 		\dialogparameter\c!parentheticalstyle
 		\ifdim\ht\parentheticalbox > \zeropoint
 			\unhbox\parentheticalbox
@@ -747,6 +751,7 @@
 		\else
 			\setbox\dialogbox\hbox\bgroup
 		\fi
+		\let\par\continue
 		\dialogparameter\c!style
 	\fi
 	\ignorespaces
