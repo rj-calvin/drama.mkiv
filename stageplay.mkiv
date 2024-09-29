@@ -77,9 +77,13 @@
 \def\castpageparameter#1{\getvalue{castpage:#1}}
 \def\setupcastpage{\dodoubleempty\getparameters[castpage:]}
 
+\definelist[chorus][criterium=local, alternative=f, interaction=none]
+\def\choruslist{\placelist[chorus]}
+
 \defineinterfaceconstant{characterstyle}{\c!character\c!style}
 \defineinterfaceconstant{description}{description}
 \defineinterfaceconstant{descriptionstyle}{\c!description\c!style}
+\defineinterfaceconstant{chorus}{chorus}
 
 \setupcastpage[
   \c!characterstyle=\tf\WORD,
@@ -95,29 +99,37 @@
   \fi
 }
 
-\def\install_character_gender{%
-  \let\currentcharactergender\empty
-  \ifcsname\currentcharacter gender\endcsname
-    \edef\currentcharactergender{%
-      (\csname\currentcharacter gender\endcsname)%
+\def\install_character_traits{%
+  \let\currentcharactertraits\empty
+  \ifcsname\currentcharacter traits\endcsname
+    \edef\currentcharactertraits{%
+      (\csname\currentcharacter traits\endcsname)%
       \space
     }%
   \fi
 }
 
+\def\install_character_chorus{%
+  \let\currentcharacterchorus\empty
+  \ifcsname\currentcharacter chorus\endcsname
+    \edef\currentcharacterchorus{\csname\currentcharacter chorus\endcsname}%
+  \fi
+}
+
 \appendtoks
   \install_character_description
-  \install_character_gender
+  \install_character_traits
+  \install_character_chorus
   \doflushatpar{%
     \dontleavehmode
-    \writetolist[cast]{}{%
+    \writetolist[\ifx\currentcharacterchorus\v!yes chorus\else cast\fi]{}{%
       \setupsplit[1][width=\dimexpr 1.5in - \emwidth\relax]%
       \startsplit
       \castpageparameter\c!characterstyle
       \currentcharactername
       \split
       \castpageparameter\c!descriptionstyle
-      \currentcharactergender
+      \currentcharactertraits
       \currentcharacterdescription
       \stopsplit
     }%
