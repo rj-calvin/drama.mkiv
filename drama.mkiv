@@ -348,6 +348,7 @@
 }
 
 \unexpanded\def\printcharacter[#1][#2]{%
+	\begingroup
 	\edef\currentcharacter{#1}%
 	\edef\currentcharacterintroduce{\characterparameter\c!introduce}%
 	\def\currentcharacterstyle{%
@@ -364,6 +365,7 @@
 	\else
 		{\currentcharacterstyle\characterparameter\c!name}%
 	\fi
+	\endgroup
 	\autoinsertnextspace
 }
 
@@ -519,6 +521,7 @@
 \chardef\dialoghastext=2
 \chardef\dialoghasparenthetical=3
 
+\def\startanonymous{\dodoubleempty\start[dialog]}
 \def\startdialog{\dosingleempty\drama_start_dialog}
 
 \def\drama_start_dialog[#1]{%
