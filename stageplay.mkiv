@@ -307,26 +307,26 @@
 
 \def\open{\startopen\let\par\stopopen}
 
-\def\instructionparameter#1{\getvalue{instruction:#1}}
-\def\setupinstruction{\dodoubleempty\getparameters[instruction:]}
+\def\directionparameter#1{\getvalue{direction:#1}}
+\def\setupdirection{\dodoubleempty\getparameters[direction:]}
 
-\newtoks\everybeforeinstruction
-\newtoks\everyafterinstruction
-\newbox\instructionbox
+\newtoks\everybeforedirection
+\newtoks\everyafterdirection
+\newbox\directionbox
 
 \appendtoks
-  \ifinstructionparenthesismode
+  \ifdirectionparenthesismode
     \penalty-\plusfifty\relax
   \fi
-\to\everybeforeinstruction
+\to\everybeforedirection
 
-\install_alternative_method{instruction}{\v!parenthesis}
-\install_alternative_method{instruction}{\v!text}
+\install_alternative_method{direction}{\v!parenthesis}
+\install_alternative_method{direction}{\v!text}
 
-\install_offset_method{instruction}{\v!left}
-\install_offset_method{instruction}{\v!right}
+\install_offset_method{direction}{\v!left}
+\install_offset_method{direction}{\v!right}
 
-\setupinstruction[
+\setupdirection[
   \c!style=\empty,
   \c!alternative=\v!parenthesis,
   \c!left=2in,
@@ -334,37 +334,37 @@
   \c!before={\blank[white]},
 ]
 
-\def\startinstruction{\dosingleempty\drama_start_instruction}
+\def\startdirection{\dosingleempty\drama_start_direction}
 
-\def\drama_start_instruction[#1]{%
+\def\drama_start_direction[#1]{%
   \begingroup
-  \getparameters[instruction:][#1]%
-  \install_instruction_parenthesis_mode
-  \install_instruction_text_mode
-  \install_instruction_left_offset
-  \install_instruction_right_offset
-  \instructionparameter\c!before
-  \the\everybeforeinstruction
-  \advance\leftskip\currentinstructionleftoffset
-  \advance\rightskip\currentinstructionrightoffset
-  \instructionparameter\c!style
-  \ifinstructionparenthesismode
+  \getparameters[direction:][#1]%
+  \install_direction_parenthesis_mode
+  \install_direction_text_mode
+  \install_direction_left_offset
+  \install_direction_right_offset
+  \directionparameter\c!before
+  \the\everybeforedirection
+  \advance\leftskip\currentdirectionleftoffset
+  \advance\rightskip\currentdirectionrightoffset
+  \directionparameter\c!style
+  \ifdirectionparenthesismode
     (%
   \fi
   \ignorespaces
 }
 
-\def\stopinstruction{%
-  \ifinstructionparenthesismode
+\def\stopdirection{%
+  \ifdirectionparenthesismode
     \unskip)%
   \fi
   \endgraf
-  \instructionparameter\c!after
-  \the\everyafterinstruction
+  \directionparameter\c!after
+  \the\everyafterdirection
   \endgroup
 }
 
-\def\instruction{\startinstruction\let\par\stopinstruction}
+\def\direction{\startdirection\let\par\stopdirection}
 
 \def\theend{\dosingleempty\drama_print_end}
 
