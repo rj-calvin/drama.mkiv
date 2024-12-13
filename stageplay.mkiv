@@ -71,19 +71,24 @@
 
 \placebookmarks[acthead, scenehead]
 
-\definelist[cast][criterium=local, alternative=f, interaction=none]
-\def\castlist{\placelist[cast]}
-
 \def\castpageparameter#1{\getvalue{castpage:#1}}
 \def\setupcastpage{\dodoubleempty\getparameters[castpage:]}
+
+\definelist[cast][criterium=local, alternative=f, interaction=none]
+\def\castlist{\placelist[cast]}
 
 \definelist[chorus][criterium=local, alternative=f, interaction=none]
 \def\choruslist{\placelist[chorus]}
 
+\definelist[doubles][criterium=local, alternative=f, interaction=none]
+\def\doubleslist{\placelist[doubles]}
+
 \defineinterfaceconstant{characterstyle}{\c!character\c!style}
 \defineinterfaceconstant{description}{description}
 \defineinterfaceconstant{descriptionstyle}{\c!description\c!style}
+\defineinterfaceconstant{cast}{cast}
 \defineinterfaceconstant{chorus}{chorus}
+\defineinterfaceconstant{doubles}{doubles}
 
 \setupcastpage[
   \c!characterstyle=\tf\WORD,
@@ -109,31 +114,33 @@
   \fi
 }
 
-\def\install_character_chorus{%
-  \let\currentcharacterchorus\empty
-  \ifcsname\currentcharacter chorus\endcsname
-    \edef\currentcharacterchorus{\csname\currentcharacter chorus\endcsname}%
+\def\install_character_list{%
+  \let\currentcharacterlist\empty
+  \ifcsname\currentcharacter list\endcsname
+    \edef\currentcharacterlist{\csname\currentcharacter list\endcsname}%
   \fi
 }
 
 \appendtoks
   \install_character_description
   \install_character_traits
-  \install_character_chorus
-  \doflushatpar{%
-    \dontleavehmode
-    \writetolist[\ifx\currentcharacterchorus\v!yes chorus\else cast\fi]{}{%
-      \setupsplit[1][width=\dimexpr 1.5in - \emwidth\relax]%
-      \startsplit
-      \castpageparameter\c!characterstyle
-      \currentcharactername
-      \split
-      \castpageparameter\c!descriptionstyle
-      \currentcharactertraits
-      \currentcharacterdescription
-      \stopsplit
+  \install_character_list
+  \ifx\currentcharacterlist\v!none\else
+    \doflushatpar{%
+      \dontleavehmode
+      \writetolist[\ifx\currentcharacterlist\empty cast\else\currentcharacterlist\fi]{}{%
+        \setupsplit[1][width=\dimexpr 1.5in - \emwidth\relax]%
+        \startsplit
+        \castpageparameter\c!characterstyle
+        \currentcharactername
+        \split
+        \castpageparameter\c!descriptionstyle
+        \currentcharactertraits
+        \currentcharacterdescription
+        \stopsplit
+      }%
     }%
-  }%
+  \fi
 \to \everydefinecharacter
 
 \startsetups[doc:castpage]
