@@ -481,6 +481,7 @@
 \setupdialog[
 	\c!style=\empty,
 	\c!parentheticalstyle=\empty,
+	\c!number=\empty,
 	\c!cue={\labeltext{anonymous}},
 	\c!extension=\empty,
 	\c!before=\relax,
@@ -500,6 +501,14 @@
 		\fi
 	\else
 		\let\currentdialogcue\dialogcueparameter
+	\fi
+}
+
+\def\install_dialog_number{%
+	\edef\dialognumberparameter{\dialogparameter\c!number}%
+	\let\currentdialognumber\empty
+	\ifx\dialognumberparameter\empty\else
+		\edef\currentdialognumber{~\dialognumberparameter}%
 	\fi
 }
 
@@ -530,6 +539,7 @@
 	\dialogstate\dialogneedscue
 	\getparameters[dialog:][#1]%
 	\install_dialog_cue
+	\install_dialog_number
 	\install_dialog_extension
 	\install_dialog_cue_offset
 	\install_dialog_parenthetical_offset
@@ -582,7 +592,7 @@
 
 \def\dialog_print_text{\vpar{\unhbox\dialogbox}}
 \def\dialog_print_concat_text{\unhbox\dialogbox\space\unhbox\continuebox}
-\def\dialog_print_cue{\cue{\currentdialogcue\currentdialogextension}}
+\def\dialog_print_cue{\cue{\currentdialogcue\currentdialognumber\currentdialogextension}}
 \def\dialog_print_more{\cue{(\labeltext{more})}}
 \def\dialog_print_continued{\cue{\currentdialogcue~(\labeltext{continued})}}
 
