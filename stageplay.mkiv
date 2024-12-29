@@ -74,18 +74,17 @@
 \def\castpageparameter#1{\getvalue{castpage:#1}}
 \def\setupcastpage{\dodoubleempty\getparameters[castpage:]}
 
-\definelist[cast][criterium=local, alternative=f, interaction=none]
-\def\castlist{\placelist[cast]}
+\def\definecastlist[#1]{\dodoubleempty\drama_define_cast_list[#1]}
 
-\definelist[chorus][criterium=local, alternative=f, interaction=none]
-\def\choruslist{\placelist[chorus]}
-
-\definelist[doubles][criterium=local, alternative=f, interaction=none]
-\def\doubleslist{\placelist[doubles]}
+\def\drama_define_cast_list[#1][#2]{%
+  \definelist[#1][criterium=local, alternative=f, interaction=none, #2]%
+}
 
 \defineinterfaceconstant{characterstyle}{\c!character\c!style}
 \defineinterfaceconstant{description}{description}
 \defineinterfaceconstant{descriptionstyle}{\c!description\c!style}
+\defineinterfaceconstant{list}{list}
+\defineinterfaceconstant{traits}{traits}
 \defineinterfaceconstant{cast}{cast}
 \defineinterfaceconstant{chorus}{chorus}
 \defineinterfaceconstant{doubles}{doubles}
@@ -125,10 +124,10 @@
   \install_character_description
   \install_character_traits
   \install_character_list
-  \ifx\currentcharacterlist\v!none\else
+  \ifx\currentcharacterlist\empty\else
     \doflushatpar{%
       \dontleavehmode
-      \writetolist[\ifx\currentcharacterlist\empty cast\else\currentcharacterlist\fi]{}{%
+      \writetolist[\currentcharacterlist]{}{%
         \setupsplit[1][width=\dimexpr 1.5in - \emwidth\relax]%
         \startsplit
         \castpageparameter\c!characterstyle
