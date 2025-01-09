@@ -549,13 +549,6 @@
 	\install_dialog_parenthetical_offset
 	\install_dialog_left_offset
 	\install_dialog_right_offset
-	\let\.\periodcontinue
-	\let\!\exclaimcontinue
-	\let\?\questioncontinue
-	\let\-\dashcontinue
-	\let\,\commacontinue
-	\let\;\semicoloncontinue
-	\let\:\coloncontinue
 	\let\(\dialog_parse_parenthetical
 	\cueoffset\dimexpr\currentdialogcueoffset - \currentdialogleftoffset\relax
 	\dialogparameter\c!before
@@ -812,14 +805,6 @@
 	\startparenthetical#1\stopparenthetical
 	\ignorespaces
 }
-
-\def\periodcontinue{.\continue}
-\def\exclaimcontinue{!\continue}
-\def\questioncontinue{?\continue}
-\def\dashcontinue{-\continue}
-\def\commacontinue{,\continue}
-\def\semicoloncontinue{;\continue}
-\def\coloncontinue{:\continue}
 
 \newtoks\everybeforedraft
 \newtoks\everyafterdraft
