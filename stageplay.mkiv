@@ -377,8 +377,9 @@
 \unexpanded\def\drama_print_end[#1]{%
   \begingroup
   \install_dialog_cue_offset
-  \penalty\plustwohundred
   \cueoffset\currentdialogcueoffset
+  \everybeforecue\emptytoks
+  \nobreak
   \iffirstargument
     \cue{\trylabeltext{#1}.}%
   \else

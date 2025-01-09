@@ -269,6 +269,10 @@
 	\allowbreak
 \to \everybeforecue
 
+\appendtoks
+	\nobreak
+\to \everyaftercue
+
 \def\cue#1{%
 	\begingroup
 	\ifhmode\endgraf\fi
@@ -571,6 +575,7 @@
 			\currentdialogparentheticaloffset - \currentdialogleftoffset
 		\relax
 		(\unhbox\parentheticalbox)%
+		\nobreak
 	}%
 }
 
@@ -580,6 +585,7 @@
 			\currentdialogparentheticaloffset - \currentdialogleftoffset
 		\relax
 		(\unhcopy\parentheticalbox)%
+		\nobreak
 	}%
 }
 
@@ -593,7 +599,7 @@
 \def\dialog_print_text{\vpar{\unhbox\dialogbox}}
 \def\dialog_print_concat_text{\unhbox\dialogbox\space\unhbox\continuebox}
 \def\dialog_print_cue{\cue{\currentdialogcue\currentdialognumber\currentdialogextension}}
-\def\dialog_print_more{\cue{(\labeltext{more})}}
+\def\dialog_print_more{\bgroup\everybeforecue\emptytoks\nobreak\cue{(\labeltext{more})}\egroup}
 \def\dialog_print_continued{\cue{\currentdialogcue~(\labeltext{continued})}}
 
 \def\dialog_log_overflow{%
@@ -608,7 +614,7 @@
 \def\dialog_check_page{%
 	\setfalse\dialog_check_fit
 	\ifdim
-		\dimexpr\pagetotal + \htdp\scratchbox - \pageshrink\relax < \pagegoal
+		\dimexpr\pagetotal + \htdp\scratchbox - \pageshrink + 1pt\relax < \pagegoal
 	\relax
 		\settrue\dialog_check_fit
 	\fi
@@ -627,7 +633,6 @@
 			\break
 		\fi
 		\dialog_print_cue
-		\nobreak
 	\or % leading parenthetical
 		\setbox\scratchbox\vbox{%
 			\dialog_print_cue
@@ -640,9 +645,7 @@
 			\break
 		\fi
 		\dialog_print_cue
-		\nobreak
 		\dialog_print_parenthetical
-		\nobreak
 	\or % has text
 		\setbox\scratchbox\vbox{%
 			\dialog_copy_concat_text
@@ -662,7 +665,6 @@
 				\dialog_print_more
 				\break
 				\dialog_print_continued
-				\nobreak
 				\setbox\dialogbox\box\continuebox
 			\else
 				\dialog_log_overflow
@@ -693,7 +695,6 @@
 				\dialog_print_more
 				\break
 				\dialog_print_continued
-				\nobreak
 				\dialog_print_parenthetical
 				\setbox\dialogbox\box\continuebox
 			\else
@@ -785,6 +786,7 @@
 					% trailing parenthetical
 					\vpar{\unhbox\dialogbox}%
 					\dialog_print_parenthetical
+					\allowbreak
 				\else
 					% trailing continue
 					\vpar{\unhbox\dialogbox}%
@@ -797,9 +799,9 @@
 			\dialog_print_cue
 		\else
 			\dialog_print_cue
-			\nobreak
 			\dialog_print_parenthetical
 		\fi
+		\allowbreak
 	\fi
 	\dialogparameter\c!after
 	\the\everyafterdialog
