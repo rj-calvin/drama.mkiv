@@ -309,8 +309,8 @@
 
 \def\fakeuppercase#1#2{\expandafter\uppercase{#1}#2}
 
-\def\charactersparameter#1{\getvalue{characters:#1}}
 \def\setupcharacters{\getparameters[characters:]}
+\def\charactersparameter#1{\getvalue{characters:#1}}
 
 \setupcharacters[
 	\c!style=\empty,
@@ -318,8 +318,11 @@
 	\c!introductionstyle=\empty,
 ]
 
+\let\currentcharacter\empty
+\let\lastcurrentcharacter\empty
 \def\namedcharacterparameter[#1]#2{\getvalue{#1#2}}
 \def\characterparameter#1{\getvalue{\currentcharacter#1}}
+\def\currentcharactername{\characterparameter\c!name}%
 
 \newtoks\everysetupcharacter
 \newtoks\everydefinecharacter
@@ -338,7 +341,7 @@
 	\edef\currentcharactername{\characterparameter\c!name}%
 	\expandafter\def\csname#1\endcsname{\dodoubleempty\printcharacter[#1]}%
 	\expandafter\def\csname setup#1\endcsname{\dodoubleempty\setupcharacter[#1]}%
-	\expandafter\def\csname start#1\endcsname{\doquadrupleempty\start[character][#1]}%
+	\expandafter\def\csname start#1\endcsname{\dodoubleempty\startcharacter[#1]}%
 	\expandafter\def\csname stop#1\endcsname{\stop}%
 	\the\everydefinecharacter
 }
@@ -373,22 +376,26 @@
 	\autoinsertnextspace
 }
 
-\def\startcharacter[#1][#2][#3]{%
-	\begingroup
-	\edef\currentcharacter{#1}%
-	\checkparameters[#2]%
-	\ifsecondargument
-		\ifparameters
-			\startdialog[\c!cue=\currentcharacter, #2, #3]%
-		\else
-			\startdialog[\c!cue=\currentcharacter, \c!extension={#2}, #3]%
-		\fi
+\def\startcharacter[#1][#2]{%
+	\let\lastcharacter\currentcharacter
+	\gdef\currentcharacter{#1}%
+	\doifelse{\lastcharacter}{\currentcharacter}%
+		{\drama_continue_character[#2]}%
+		{\drama_begin_character[#2]}%
+}
+
+\def\drama_begin_character[#1]{%
+	\checkparameters[#1]%
+	\ifparameters
+		\start[dialog][\c!cue={\currentcharacter}, #1]%
 	\else
-		\startdialog[\c!cue=\currentcharacter]%
+		\start[dialog][\c!cue={\currentcharacter}, \c!extension={#1}]%
 	\fi
 }
 
-\def\stopcharacter{\stopdialog\endgroup}
+\def\drama_continue_character[#1]{%
+	\start[dialog][\c!cue={\currentcharacter}, \c!extension={continued}, #1]%
+}
 
 \newconditional\splitmode
 \def\ifsplitmode{\ifconditional\splitmode}

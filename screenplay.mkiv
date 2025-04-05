@@ -18,6 +18,10 @@
 	\penalty-\plusfifty
 \to \everybeforecue
 
+\appendtoks
+	\let\currentcharacter\empty
+\to \everydefinecharacter
+
 \setupcharacters[
 	introductions=yes,
 	introductionstyle=\WORD,
@@ -113,7 +117,8 @@
 	textdistance=\zeropoint,
 	numbercommand=\slugparameter\c!numbercommand,
 	before={%
-		\testpage[3]%
+		\goodbreak\testpage[3]%
+		\let\currentcharacter\empty
 		\slugparameter\c!before
 	},
 	after=\slugparameter\c!after,

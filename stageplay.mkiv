@@ -33,14 +33,13 @@
   bodypartlabel=act,
   conversion=Romannumerals,
   strut=no,
-  before={\goodbreak\testpage[3]},
+  before={\goodbreak\testpage[3]\let\currentcharacter\empty},
 ]
 
 \def\act{\dosinglegroupempty\drama_act}
 \def\startact{\dosingleempty\drama_start_act}
 \let\stopact\stopacthead
 \let\actoffset\actheadoffset
-\def\setupact{\setuphead[acthead]}
 
 \def\drama_act#1{\acthead{#1}\ignorespaces}
 \def\drama_start_act[#1]{\startacthead[#1]\ignorespaces}
@@ -54,14 +53,13 @@
 	sectionseparatorset=sectionseparatorset,
 	sectionconversionset=sectionconversionset,
   strut=no,
-  before={\goodbreak\testpage[3]},
+  before={\goodbreak\testpage[3]\let\currentcharacter\empty},
 ]
 
 \def\scene{\dosinglegroupempty\drama_scene}
 \def\startscene{\dosingleempty\drama_start_scene}
 \let\stopscene\stopscenehead
 \let\sceneoffset\sceneheadoffset
-\def\setupscene{\setuphead[scenehead]}
 
 \def\drama_scene#1{\scenehead{#1}\ignorespaces}
 \def\drama_start_scene[#1]{\startscenehead[#1]\ignorespaces}
