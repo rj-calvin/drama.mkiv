@@ -319,7 +319,6 @@
 ]
 
 \let\currentcharacter\empty
-\let\lastcurrentcharacter\empty
 \def\namedcharacterparameter[#1]#2{\getvalue{#1#2}}
 \def\characterparameter#1{\getvalue{\currentcharacter#1}}
 \def\currentcharactername{\characterparameter\c!name}%
@@ -377,24 +376,13 @@
 }
 
 \def\startcharacter[#1][#2]{%
-	\let\lastcharacter\currentcharacter
-	\gdef\currentcharacter{#1}%
-	\doifelse{\lastcharacter}{\currentcharacter}%
-		{\drama_continue_character[#2]}%
-		{\drama_begin_character[#2]}%
-}
-
-\def\drama_begin_character[#1]{%
-	\checkparameters[#1]%
+	\edef\currentcharacter{#1}%
+	\checkparameters[#2]%
 	\ifparameters
-		\start[dialog][\c!cue={\currentcharacter}, #1]%
+		\start[dialog][\c!cue={\currentcharacter}, #2]%
 	\else
-		\start[dialog][\c!cue={\currentcharacter}, \c!extension={#1}]%
+		\start[dialog][\c!cue={\currentcharacter}, \c!extension={#2}]%
 	\fi
-}
-
-\def\drama_continue_character[#1]{%
-	\start[dialog][\c!cue={\currentcharacter}, \c!extension={continued}, #1]%
 }
 
 \newconditional\splitmode
