@@ -801,6 +801,17 @@
 	\ignorespaces
 }
 
+\def\beat{\dosinglegroupempty\dialog_beat}
+
+\def\dialog_beat#1{%
+	\iffirstargument
+		\startparenthetical#1\stopparenthetical
+	\else
+		\startparenthetical beat\stopparenthetical
+	\fi
+	\ignorespaces
+}
+
 \newtoks\everybeforedraft
 \newtoks\everyafterdraft
 
